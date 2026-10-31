@@ -2,7 +2,7 @@
 Tes untuk src/deteksi.py. Jalankan:  python -m pytest tests/ -v
 
 Pola tiap tes: SIAPKAN data kecil yang bisa dihitung di kepala -> PANGGIL fungsi
--> PERIKSA hasilnya. Kalau nanti kamu mengubah rumus, tes ini yang kasih tahu
+-> PERIKSA hasilnya. Kalau nanti kamu mengubah rumus, tes ini yang memberi tahu
 apakah ada yang rusak.
 """
 

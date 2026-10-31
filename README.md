@@ -12,7 +12,7 @@ one to a curated dataset of major world events, with sources. Built with Python,
 
 ## Kenapa project ini ada?
 
-Tiap kali harga Bitcoin loncat atau anjlok, timeline penuh orang yang "tahu" penyebabnya: Trump bikin pernyataan,
+Setiap kali harga Bitcoin melonjak atau anjlok, lini masa penuh orang yang "tahu" penyebabnya: Trump membuat pernyataan,
 The Fed naikkan bunga, ada perang. Tapi klaim itu jarang dicek balik ke data. Project ini mencoba menjawabnya
 secara sistematis:
 
@@ -103,7 +103,7 @@ btc-news-volatility/
 │   └── deteksi.py          # return, volatilitas, z-score, pencocokan berita
 ├── data/
 │   ├── btc_harga_harian.csv
-│   ├── berita_besar.csv    # dataset berita, gampang ditambah
+│   ├── berita_besar.csv    # dataset berita, mudah ditambah
 │   └── SUMBER_DATA.md
 ├── tests/test_deteksi.py
 └── docs/

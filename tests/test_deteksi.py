@@ -14,7 +14,7 @@ from src.muat_data import muat_berita, muat_harga
 
 
 def buat_harga(closes, mulai="2024-01-01"):
-    """Bikin DataFrame harga mini dari daftar angka close."""
+    """Membuat DataFrame harga mini dari daftar angka close."""
     tanggal = pd.date_range(mulai, periods=len(closes), freq="D")
     return pd.DataFrame({"tanggal": tanggal, "close": closes})
 

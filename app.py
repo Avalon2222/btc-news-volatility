@@ -290,7 +290,7 @@ $$z_t = \frac{r_t}{\sigma_{t-1,\,N}}$$
 
 **Langkah 4.** Kalau $|z_t| \ge$ ambang (slider di kiri), hari itu jadi titik di chart.
 
-Kenapa tidak pakai aturan "turun lebih dari 5%" saja? Karena 5% di 2020 (pasar liar) itu biasa,
+Kenapa tidak pakai aturan "turun lebih dari 5%" saja? Karena 5% di 2020 (pasar sangat bergejolak) itu biasa,
 sedangkan 5% di 2025 itu kejadian besar. Lihat grafik volatilitas di atas: tingginya beda jauh antar tahun.
 Z-score otomatis menyesuaikan.
 
@@ -367,7 +367,7 @@ with tab_stat:
         fig_kat.update_yaxes(autorange="reversed")
         fig_kat.update_xaxes(range=[0, hitung.max() * 1.25], title="Jumlah titik signifikan")
         rapikan(fig_kat, 360)
-        fig_kat.update_layout(title="Penyebab apa yang paling sering bikin BTC bergejolak?", showlegend=False)
+        fig_kat.update_layout(title="Penyebab apa yang paling sering membuat BTC bergejolak?", showlegend=False)
         kol1.plotly_chart(fig_kat, use_container_width=True)
 
         # Rata-rata besar gerakan per kategori (nilai mutlak)

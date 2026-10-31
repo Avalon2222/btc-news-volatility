@@ -11,11 +11,11 @@ Ide intinya sederhana:
      pergerakan signifikan dan tampilkan sebagai TITIK di chart.
 
 Kenapa pakai z-score, bukan sekadar "turun 5%"?
-  Karena 5% di tahun 2020 (pasar liar) itu biasa, tapi 5% di 2025 (pasar lebih
+  Karena 5% di tahun 2020 (pasar sangat bergejolak) itu biasa, tapi 5% di 2025 (pasar lebih
   tenang) itu kejadian besar. Z-score menyesuaikan ambang dengan kondisi pasar.
 
 Semua fungsi di sini MURNI (pure): terima DataFrame, kembalikan DataFrame baru,
-tidak menyentuh file/internet/Streamlit. Itu yang bikin gampang dites.
+tidak menyentuh file/internet/Streamlit. Itulah yang membuatnya mudah diuji.
 """
 
 from __future__ import annotations
@@ -87,7 +87,8 @@ def cocokkan_berita(
     Aturan:
       - Berita dianggap "penyebab" kalau tanggalnya selisih <= toleransi_hari
         dari tanggal pergerakan (default +-1 hari, karena pasar kripto 24 jam
-        dan perbedaan zona waktu sering bikin berita AS malam = candle besok).
+        dan perbedaan zona waktu membuat berita malam di AS sering baru tercermin
+        pada candle hari berikutnya).
       - Kalau ada beberapa berita, dipilih yang selisihnya paling kecil.
       - Kalau tidak ada, kolom judul = "Penyebab belum tercatat" dan kategori
         = "belum tercatat". Kita TIDAK mengarang penyebab.

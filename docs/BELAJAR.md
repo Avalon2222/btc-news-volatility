@@ -1,13 +1,14 @@
 # 🎓 Panduan Belajar: Bedah Project dari Nol
 
-Panduan ini buat kamu yang baru bisa Python dasar dan pengin ngerti *kenapa* kodenya ditulis begitu,
-bukan cuma *apa* yang ditulis. Baca sambil buka file yang dibahas. Santai aja, satu langkah sehari juga oke.
+Panduan ini ditujukan untuk pembaca yang baru menguasai Python dasar dan ingin memahami *mengapa* kodenya
+ditulis seperti itu, bukan hanya *apa* yang ditulis. Bacalah sambil membuka file yang dibahas. Tidak perlu
+terburu-buru; satu langkah per hari pun cukup.
 
-Yang bakal kamu pelajari:
+Yang akan kamu pelajari:
 - cara membaca data deret waktu (time series) dengan pandas,
 - satu konsep statistik yang dipakai di mana-mana: **z-score**,
 - cara menyambungkan dua tabel berdasarkan tanggal yang "kira-kira sama",
-- cara bikin chart interaktif yang bisa diklik di Streamlit,
+- cara membuat chart interaktif yang bisa diklik di Streamlit,
 - dan kebiasaan paling penting: menulis tes dan jujur soal keterbatasan.
 
 ---
@@ -31,8 +32,8 @@ Yang bakal kamu pelajari:
 ```
 
 Kenapa dipisah-pisah? Supaya tiap lapisan bisa diganti tanpa merusak yang lain. Mau ganti Bitcoin jadi
-Ethereum? Cuma lapisan 1-2 yang berubah. Mau ganti Streamlit jadi website biasa? Cuma lapisan 4.
-Lapisan 3 (logika) tidak tahu-menahu soal file atau tampilan, makanya gampang dites.
+Ethereum? Hanya lapisan 1-2 yang berubah. Mau ganti Streamlit jadi website biasa? Hanya lapisan 4.
+Lapisan 3 (logika) tidak tahu-menahu soal file atau tampilan, sehingga mudah diuji.
 
 ---
 
@@ -50,7 +51,7 @@ df.head()
 |---|---|---|---|---|---|
 | 2020-01-01 | 7194.89 | 7254.33 | 7174.94 | 7200.17 | 18565664997 |
 
-`parse_dates=["tanggal"]` penting: tanpa itu kolom tanggal cuma dianggap teks, dan kamu tidak bisa
+`parse_dates=["tanggal"]` penting: tanpa itu kolom tanggal hanya dianggap teks, dan kamu tidak bisa
 menghitung selisih hari atau mengelompokkan per tahun.
 
 Coba beberapa hal ini di terminal Python:
@@ -63,7 +64,7 @@ df.loc[df["close"].idxmax()]           # hari dengan harga tertinggi sepanjang d
 
 ### Dari mana datanya? (`src/ambil_harga.py`)
 
-Yahoo Finance punya endpoint publik yang mengembalikan JSON. File ini cuma melakukan tiga hal:
+Yahoo Finance punya endpoint publik yang mengembalikan JSON. File ini hanya melakukan tiga hal:
 (1) `requests.get(...)` ke URL itu, (2) ambil daftar `timestamp` dan `close` dari JSON-nya,
 (3) rapikan ke DataFrame dan simpan CSV. Kalau internet mati, app tetap jalan dari CSV yang sudah ada.
 Pola "ambil dari API → simpan snapshot lokal → app baca snapshot" ini sangat umum dan layak dihafal.
@@ -81,11 +82,11 @@ df["return_pct"] = df["close"].pct_change() * 100
 ```
 
 `pct_change()` = (nilai sekarang − nilai sebelumnya) / nilai sebelumnya. Hari pertama hasilnya `NaN`
-karena tidak ada "kemarin". Itu normal, bukan bug.
+karena tidak ada "kemarin". Itu wajar, bukan bug.
 
 ### 2b. Volatilitas = "gejolak normal"
 
-> *"Seberapa liar pasar akhir-akhir ini?"*
+> *"Seberapa bergejolak pasar akhir-akhir ini?"*
 
 ```python
 df["volatilitas_pct"] = df["return_pct"].rolling(30).std().shift(1)
@@ -120,7 +121,7 @@ lebih besar dari gejolak harian biasa". Kalau return datanya kira-kira berbentuk
 tetap layak ditandai.
 
 Kenapa tidak pakai aturan "turun lebih dari 5%" saja? Coba lihat grafik volatilitas di tab Chart:
-di 2020–2021 volatilitas harian sering 4–5%, di 2025–2026 sering cuma 1,5–2%. Ambang 5% akan menandai
+di 2020–2021 volatilitas harian sering 4–5%, di 2025–2026 sering hanya 1,5–2%. Ambang 5% akan menandai
 hampir tiap minggu di 2020 dan hampir tidak pernah di 2025. Z-score menyesuaikan otomatis.
 
 ### 2d. Menandai titik
@@ -155,7 +156,7 @@ Kalau tidak ada berita dalam toleransi, titiknya dilabeli **"Penyebab belum terc
 desain yang disengaja: lebih baik jujur bilang tidak tahu daripada memaksakan berita terdekat yang
 sebenarnya seminggu jauhnya.
 
-(Buat yang penasaran: pandas punya `pd.merge_asof()` untuk kasus ini. Latihan 7 mengajak kamu mencobanya.)
+(Untuk yang penasaran: pandas punya `pd.merge_asof()` untuk kasus ini. Latihan 7 mengajak kamu mencobanya.)
 
 ---
 
@@ -214,7 +215,7 @@ Dua trik yang dipakai di `app.py`:
 
 ## Langkah 6 — Plotly: chart yang bisa di-hover dan diklik
 
-Chart utama cuma dua jenis "trace":
+Chart utama hanya dua jenis "trace":
 
 ```python
 fig.add_trace(go.Scatter(x=tanggal, y=close, mode="lines"))              # garis harga
@@ -226,9 +227,9 @@ Tiga ide yang layak kamu bawa ke project lain:
 
 1. **Satu trace per kategori**, bukan satu trace dengan warna berbeda-beda. Hasilnya legenda bisa diklik
    untuk menyembunyikan satu kategori, dan warnanya konsisten walau difilter.
-2. **`customdata`** = data tambahan yang "nebeng" di tiap titik tapi tidak digambar. Hovertemplate
+2. **`customdata`** = data tambahan yang "menumpang" di tiap titik tetapi tidak digambar. Hovertemplate
    membacanya dengan `%{customdata[0]}`. Begini caranya tooltip bisa menampilkan judul berita.
-3. **`on_select="rerun"`** di `st.plotly_chart` mengubah klik jadi data Python. Tanpa ini, klik cuma
+3. **`on_select="rerun"`** di `st.plotly_chart` mengubah klik jadi data Python. Tanpa ini, klik hanya
    terjadi di browser dan Python tidak tahu apa-apa.
 
 Soal warna: tiap kategori punya **warna DAN bentuk** (lingkaran, wajik, kotak, segitiga, bintang, silang).
@@ -237,9 +238,9 @@ karena dua sumbu dalam satu chart hampir selalu menyesatkan. Volatilitas digamba
 
 ---
 
-## Langkah 7 — Kejujuran data (bagian yang bikin project ini beda)
+## Langkah 7 — Kejujuran data (bagian yang membedakan project ini)
 
-Gampang banget bikin chart yang "membuktikan" apa pun: tinggal pilih berita yang cocok dan abaikan sisanya.
+Sangat mudah membuat chart yang "membuktikan" apa pun: tinggal pilih berita yang cocok dan abaikan sisanya.
 Project ini memasang beberapa rem:
 
 - **Titik abu-abu "belum tercatat"** ditampilkan, bukan disembunyikan. Sekitar seperempat gerakan besar tidak
@@ -258,14 +259,14 @@ Kebiasaan ini lebih berharga di CV daripada chart yang cantik.
 | Istilah | Arti singkat |
 |---|---|
 | Return | Persen perubahan harga dari periode sebelumnya |
-| Volatilitas | Ukuran seberapa liar harga bergerak; di sini = standar deviasi return |
+| Volatilitas | Ukuran seberapa besar harga bergerak; di sini = standar deviasi return |
 | Standar deviasi (std) | Rata-rata "jarak" data dari rata-ratanya. Kecil = data rapat, besar = data menyebar |
 | Z-score | Nilai dibagi standar deviasi: "berapa kali lipat dari normal" |
 | Rolling window | Jendela N hari yang bergeser maju tiap hari |
 | Look-ahead bias | Memakai informasi yang di dunia nyata belum tersedia saat itu. Dicegah dengan `.shift(1)` |
 | Likuidasi | Posisi trader yang pakai utang (leverage) ditutup paksa oleh bursa; mempercepat gerakan harga |
 | Priced in | Berita yang sudah diperkirakan pasar sehingga saat diumumkan harga tidak banyak bergerak |
-| Hawkish / dovish | Nada bank sentral: hawkish = cenderung mengetat (buruk buat aset berisiko), dovish = melonggarkan |
+| Hawkish / dovish | Nada bank sentral: hawkish = cenderung mengetat (buruk bagi aset berisiko), dovish = melonggarkan |
 | FOMC | Rapat The Fed yang memutuskan suku bunga, 8 kali setahun |
 | ETF spot | Produk bursa saham yang memegang Bitcoin sungguhan; disetujui SEC Januari 2024 |
 | Halving | Hadiah penambang Bitcoin dipotong setengah tiap ~4 tahun |
@@ -276,5 +277,5 @@ Kebiasaan ini lebih berharga di CV daripada chart yang cantik.
 
 1. Kerjakan [LATIHAN.md](LATIHAN.md) dari yang bintang satu.
 2. Coba ganti aset: unduh `ETH-USD` dari Yahoo, lihat apakah titik-titiknya jatuh di tanggal yang sama.
-3. Ide lanjutan yang masuk akal buat project berikutnya: ambil berita otomatis dari API berita atau RSS,
+3. Ide lanjutan yang masuk akal untuk project berikutnya: ambil berita otomatis dari API berita atau RSS,
    lalu pakai model bahasa untuk mengelompokkannya ke lima kategori di sini.

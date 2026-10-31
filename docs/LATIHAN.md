@@ -1,8 +1,8 @@
 # 🏋️ Latihan
 
-Urut dari yang paling gampang. Bintang = tingkat kesulitan. Tiap latihan punya petunjuk dan cara
+Urut dari yang paling mudah. Bintang = tingkat kesulitan. Tiap latihan punya petunjuk dan cara
 mengecek apakah jawabanmu benar. Kerjakan di branch baru (`git checkout -b latihan-1`) supaya kalau
-rusak tinggal balik.
+ada yang rusak kamu bisa kembali dengan mudah.
 
 ---
 

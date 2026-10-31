@@ -2,7 +2,7 @@
 ambil_harga.py - Mengunduh harga Bitcoin harian dari Yahoo Finance.
 
 Kenapa Yahoo Finance?
-  - Gratis dan TIDAK butuh API key (CoinGecko gratis cuma kasih 365 hari,
+  - Gratis dan TIDAK butuh API key (CoinGecko gratis hanya memberi 365 hari,
     Binance diblokir di beberapa negara, CryptoCompare sekarang minta key).
   - Datanya harian (open/high/low/close/volume) sejak 2014.
 

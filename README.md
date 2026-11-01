@@ -8,6 +8,8 @@
 *An interactive Bitcoin price chart that auto-detects abnormal daily moves (rolling z-score) and links each
 one to a curated dataset of major world events, with sources. Built with Python, pandas, Plotly and Streamlit.*
 
+**🚀 Coba langsung di browser:** [btc-news-volatility.streamlit.app](https://btc-news-volatility.streamlit.app)
+
 ![Chart utama](docs/screenshots/02_hover.png)
 
 ## Kenapa project ini ada?

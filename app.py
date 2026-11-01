@@ -93,7 +93,7 @@ with st.sidebar:
         help="Geser untuk zoom ke periode tertentu. Deteksi tetap dihitung dari seluruh data.",
     )
 
-    st.subheader("Deteksi pergerakan")
+    st.subheader("Detection")
     ambang_z = st.slider(
         "Ambang z-score |z| ≥", 1.5, 4.0, deteksi.AMBANG_Z_DEFAULT, 0.1,
         help="Berapa kali lipat dari gejolak normal supaya sebuah hari dianggap signifikan. "
@@ -109,28 +109,28 @@ with st.sidebar:
              "berita malam di AS sering baru terlihat di candle esok hari (UTC).",
     )
 
-    st.subheader("Tampilan")
+    st.subheader("Display")
     kategori_pilih = st.multiselect(
         "Kategori penyebab",
         options=list(KATEGORI.keys()),
         default=list(KATEGORI.keys()),
         format_func=label_kategori,
     )
-    skala_log = st.toggle("Skala logaritmik", value=False,
+    skala_log = st.toggle("Log scale", value=False,
                           help="Berguna kalau rentang panjang: kenaikan 7k→70k kelihatan proporsional.")
-    mode_belajar = st.toggle("🎓 Mode belajar", value=False,
+    mode_belajar = st.toggle("🎓 Learning mode", value=False,
                              help="Tampilkan penjelasan rumus + kode di bawah tiap grafik.")
 
     st.divider()
-    if st.button("🔄 Perbarui harga dari Yahoo Finance", use_container_width=True):
+    if st.button("🔄 Update harga dari Yahoo Finance", use_container_width=True):
         try:
-            with st.spinner("Mengunduh..."):
+            with st.spinner("Mengambil harga..."):
                 baru = perbarui_csv()
             st.cache_data.clear()
             st.success(f"Berhasil: {len(baru)} hari, terakhir {baru['tanggal'].max().date()}")
             st.rerun()
         except Exception as e:  # noqa: BLE001 - tampilkan apa pun errornya ke pengguna
-            st.error(f"Gagal mengunduh ({type(e).__name__}). App tetap pakai CSV lokal.")
+            st.error(f"Gagal update ({type(e).__name__}). App tetap pakai CSV lokal.")
     st.caption(f"Data harga: {tgl_min} → {tgl_maks} ({len(harga_semua):,} hari). "
                f"Berita: {len(berita_semua)} peristiwa.")
 
@@ -177,7 +177,7 @@ else:
     k4.metric("Gerakan terbesar", "—")
 
 tab_chart, tab_daftar, tab_stat, tab_berita, tab_cara = st.tabs(
-    ["📈 Chart", "📋 Daftar titik", "📊 Statistik", "📰 Semua berita", "🧭 Cara kerja"]
+    ["📈 Chart", "📋 Flagged days", "📊 Stats", "📰 All news", "🧭 How it works"]
 )
 
 # ----------------------------------------------------------------------------
@@ -198,7 +198,7 @@ with tab_chart:
 
     if dipilih is None:
         st.info("👆 Klik salah satu titik di chart untuk membaca penyebabnya. "
-                "Atau pakai tab **Daftar titik** untuk memilih dari tabel.")
+                "Atau pakai tab **Flagged days** untuk memilih dari tabel.")
     else:
         warna = KATEGORI.get(dipilih["kategori"], KATEGORI["belum tercatat"])["warna"]
         arah_ikon = "📈" if dipilih["arah"] == "naik" else "📉"
@@ -274,7 +274,7 @@ with tab_chart:
     st.plotly_chart(fig_vol, use_container_width=True)
 
     if mode_belajar:
-        with st.expander("🎓 Mode belajar: bagaimana titik-titik ini ditemukan?", expanded=True):
+        with st.expander("🎓 Learning mode: bagaimana titik-titik ini ditemukan?", expanded=True):
             st.markdown(
                 r"""
 **Langkah 1. Return harian** = seberapa persen harga berubah dari kemarin.
@@ -332,7 +332,7 @@ with tab_daftar:
                 "sumber_url": st.column_config.LinkColumn("Sumber", display_text="buka"),
             },
         )
-        st.download_button("⬇️ Unduh tabel ini (CSV)", tampil.to_csv(index=False).encode(),
+        st.download_button("⬇️ Download tabel ini (CSV)", tampil.to_csv(index=False).encode(),
                            "titik_signifikan.csv", "text/csv")
 
         st.markdown("#### Baca detail satu titik")
@@ -418,7 +418,7 @@ with tab_stat:
         st.plotly_chart(fig_thn, use_container_width=True)
 
         if mode_belajar:
-            with st.expander("🎓 Mode belajar: groupby dalam satu baris", expanded=True):
+            with st.expander("🎓 Learning mode: groupby dalam satu baris", expanded=True):
                 st.code(
                     'hitung = titik["kategori"].value_counts()                     # berapa titik per kategori\n'
                     'rata   = titik.groupby("kategori")["return_pct"].agg(lambda s: s.abs().mean())\n'
@@ -427,7 +427,7 @@ with tab_stat:
                 )
                 st.markdown("Hati-hati menafsirkan: **korelasi bukan sebab-akibat**. Berita yang kita pasangkan "
                             "adalah *penjelasan yang paling masuk akal*, bukan bukti. Baca bagian 'Keterbatasan' "
-                            "di tab Cara kerja.")
+                            "di tab How it works.")
 
 # ----------------------------------------------------------------------------
 # 5D. TAB SEMUA BERITA

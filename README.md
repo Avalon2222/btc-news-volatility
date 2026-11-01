@@ -30,11 +30,11 @@ Hasilnya bukan ramalan harga, tapi alat untuk membaca hubungan antara berita dan
 | Tab | Isi |
 |---|---|
 | 📈 Chart | Garis harga + titik berwarna per kategori penyebab. Hover = ringkasan berita, klik = kartu detail + link sumber. Ukuran titik mengikuti seberapa ekstrem gerakannya |
-| 📋 Daftar titik | Tabel semua pergerakan signifikan di rentang yang dipilih, bisa diurutkan dan diunduh CSV |
-| 📊 Statistik | Jumlah titik per kategori, rata-rata besar gerakan per kategori, 15 berita dengan reaksi terbesar, jumlah hari ekstrem per tahun |
-| 📰 Semua berita | 102 peristiwa 2020–2026 beserta reaksi harga di hari itu, walau kecil |
-| 🧭 Cara kerja | Diagram alur data, sumber, dan daftar keterbatasan |
-| 🎓 Mode belajar | Toggle di sidebar: tiap grafik dapat penjelasan rumus + potongan kode |
+| 📋 Flagged days | Tabel semua pergerakan signifikan di rentang yang dipilih, bisa diurutkan dan di-download sebagai CSV |
+| 📊 Stats | Jumlah titik per kategori, rata-rata besar gerakan per kategori, 15 berita dengan reaksi terbesar, jumlah hari ekstrem per tahun |
+| 📰 All news | 102 peristiwa 2020–2026 beserta reaksi harga di hari itu, walau kecil |
+| 🧭 How it works | Diagram alur data, sumber, dan daftar keterbatasan |
+| 🎓 Learning mode | Toggle di sidebar: tiap grafik dapat penjelasan rumus + potongan kode |
 
 Semua parameter deteksi (ambang z-score, jendela volatilitas, toleransi tanggal) bisa digeser lewat slider dan
 seluruh dashboard langsung dihitung ulang.

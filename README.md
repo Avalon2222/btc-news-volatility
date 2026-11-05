@@ -1,5 +1,7 @@
 # ₿ Bitcoin vs Berita Dunia
 
+[![tests](https://github.com/Avalon2222/btc-news-volatility/actions/workflows/tests.yml/badge.svg)](https://github.com/Avalon2222/btc-news-volatility/actions/workflows/tests.yml) [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://btc-news-volatility.streamlit.app)
+
 > Chart interaktif harga Bitcoin yang **otomatis menandai hari-hari bergejolak**, lalu memasangkannya dengan
 > berita besar dunia: pernyataan Trump, keputusan The Fed, perang, regulasi, sampai bursa kripto yang bangkrut.
 > Arahkan kursor ke titik untuk lihat penyebabnya, klik untuk detail dan sumber.

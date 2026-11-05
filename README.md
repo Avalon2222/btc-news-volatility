@@ -7,8 +7,20 @@
 > Arahkan kursor ke titik untuk lihat penyebabnya, klik untuk detail dan sumber.
 > Dibangun dengan Python, pandas, Plotly, dan Streamlit.
 
-*An interactive Bitcoin price chart that auto-detects abnormal daily moves (rolling z-score) and links each
-one to a curated dataset of major world events, with sources. Built with Python, pandas, Plotly and Streamlit.*
+## 🇬🇧 In English
+
+**Did the news move Bitcoin, or did Twitter just say so?** An interactive Bitcoin price chart that flags statistically unusual days with a rolling z-score and pairs each one with a curated dataset of 102 major world events (2020–2026): Fed decisions, Trump statements, wars, regulation, exchange collapses.
+
+- **Hover** a flagged point to see the likely cause, click it for the full story and source link.
+- **Measure** which news categories move the price most often, and by how much.
+- **Count** the big moves that have no clear news behind them at all.
+- **Tune** the detection threshold, volatility window, and date tolerance live.
+
+**Built with:** Python, pandas, NumPy, Plotly, Streamlit  
+**Data:** Daily BTC-USD prices from Yahoo Finance and a hand-curated event list with a source for every event  
+**Engineering:** Tested anomaly-detection module, CI on GitHub Actions, and a learning mode with formulas and code
+
+*The rest of this README is in Indonesian.*
 
 **🚀 Coba langsung di browser:** [btc-news-volatility.streamlit.app](https://btc-news-volatility.streamlit.app)
 

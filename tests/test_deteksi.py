@@ -89,3 +89,56 @@ def test_ringkasan_data_asli():
     assert r["total"] == r["naik"] + r["turun"]
     assert 0 <= r["persen_terjelaskan"] <= 100
     assert r["terjelaskan"] > r["total"] / 2       # mayoritas titik punya penjelasan
+
+
+def test_pasar_datar_tidak_menghasilkan_titik():
+    # Harga sama terus: return 0, volatilitas 0 -> z-score tidak terdefinisi,
+    # jadi tidak boleh ada hari yang dianggap signifikan (dan tidak boleh error).
+    hasil = deteksi.deteksi_pergerakan(buat_harga([100] * 50), ambang_z=2.5, jendela=30)
+    assert hasil.empty
+
+
+def test_deteksi_arah_turun():
+    closes = [100]
+    for i in range(40):
+        closes.append(closes[-1] * (1.01 if i % 2 == 0 else 0.99))
+    closes.append(closes[-1] * 0.85)   # crash 15%
+    hasil = deteksi.deteksi_pergerakan(buat_harga(closes), ambang_z=2.5, jendela=30)
+    assert len(hasil) == 1
+    assert hasil["arah"].iloc[0] == "turun"
+    assert hasil["z_score"].iloc[0] < 0
+
+
+def test_cocokkan_berita_tanpa_dataset():
+    pergerakan = pd.DataFrame({
+        "tanggal": pd.to_datetime(["2024-01-10"]),
+        "return_pct": [5.0],
+        "arah": ["naik"],
+    })
+    berita = pd.DataFrame(columns=["tanggal", "judul", "kategori", "penjelasan", "sumber_url"])
+    hasil = deteksi.cocokkan_berita(pergerakan, berita)
+    assert hasil["judul"].iloc[0] == "Penyebab belum tercatat"
+    assert hasil["sumber_url"].iloc[0] == ""
+
+
+def test_cocokkan_berita_memilih_yang_terdekat():
+    pergerakan = pd.DataFrame({
+        "tanggal": pd.to_datetime(["2024-03-05"]),
+        "return_pct": [-7.0],
+        "arah": ["turun"],
+    })
+    berita = pd.DataFrame({
+        "tanggal": pd.to_datetime(["2024-03-04", "2024-03-05"]),
+        "judul": ["Berita kemarin", "Berita hari ini"],
+        "kategori": ["makro", "regulasi"],
+        "penjelasan": ["a", "b"],
+        "sumber_url": ["https://a.org", "https://b.org"],
+    })
+    hasil = deteksi.cocokkan_berita(pergerakan, berita, toleransi_hari=1)
+    assert hasil["judul"].iloc[0] == "Berita hari ini"
+    assert hasil["selisih_hari"].iloc[0] == 0
+
+
+def test_ringkasan_kosong():
+    r = deteksi.ringkasan(pd.DataFrame())
+    assert r == {"total": 0, "naik": 0, "turun": 0, "terjelaskan": 0, "persen_terjelaskan": 0.0}

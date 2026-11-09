@@ -164,3 +164,15 @@ def test_z_score_mengurutkan_tanggal_dulu():
     df = deteksi.hitung_z_score(acak, jendela=3)
     assert df["tanggal"].is_monotonic_increasing
     assert df["close"].iloc[-1] == 120
+
+
+def test_isi_kosong_hanya_baris_tanpa_berita():
+    df = pd.DataFrame({"tanggal": pd.to_datetime(["2024-03-05", "2024-03-06"]),
+                       "judul": ["ETF disetujui", None], "kategori": ["regulasi", None],
+                       "penjelasan": ["Ada beritanya.", None], "sumber_url": ["https://contoh", None]})
+    hasil = deteksi._isi_kosong(df)
+    assert hasil.loc[0, "judul"] == "ETF disetujui" and hasil.loc[0, "sumber_url"] == "https://contoh"
+    assert hasil.loc[1, "judul"] == "Penyebab belum tercatat"
+    assert hasil.loc[1, "kategori"] == "belum tercatat"
+    assert "LATIHAN.md" in hasil.loc[1, "penjelasan"]
+    assert hasil.loc[1, "sumber_url"] == ""

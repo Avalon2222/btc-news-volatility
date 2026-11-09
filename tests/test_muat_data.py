@@ -101,3 +101,14 @@ def test_ambil_harga_yahoo_merapikan_respons(monkeypatch):
     assert df["volume"].tolist() == [10, 0]              # volume kosong jadi 0
     assert str(df["volume"].dtype) == "int64"
     assert df["tanggal"].dt.hour.eq(0).all()             # jam dinolkan
+
+
+def test_perbarui_csv_buang_candle_hari_ini(monkeypatch, tmp_path):
+    palsu = pd.DataFrame({"tanggal": pd.to_datetime(["2026-11-07", "2026-11-08", "2026-11-09"]),
+                          "open": [1.0, 2.0, 3.0], "high": [1.0, 2.0, 3.0], "low": [1.0, 2.0, 3.0],
+                          "close": [1.0, 2.0, 3.0], "volume": [1, 2, 3]})
+    monkeypatch.setattr(ambil_harga, "ambil_harga_yahoo", lambda: palsu)
+    path = tmp_path / "btc.csv"
+    df = ambil_harga.perbarui_csv(path, hari_ini=pd.Timestamp("2026-11-09"))
+    assert df["tanggal"].dt.strftime("%Y-%m-%d").tolist() == ["2026-11-07", "2026-11-08"]
+    assert pd.read_csv(path)["tanggal"].tolist() == ["2026-11-07", "2026-11-08"]

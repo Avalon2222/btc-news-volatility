@@ -65,9 +65,15 @@ def ambil_harga_yahoo(mulai: str = "2020-01-01", sampai: str | None = None) -> p
     return df.reset_index(drop=True)
 
 
-def perbarui_csv(path: Path = PATH_CSV) -> pd.DataFrame:
-    """Unduh ulang lalu timpa CSV snapshot di folder data/."""
+def perbarui_csv(path: Path = PATH_CSV, hari_ini: pd.Timestamp | None = None) -> pd.DataFrame:
+    """Unduh ulang lalu timpa CSV snapshot di folder data/.
+
+    Candle hari ini (UTC) belum ditutup, jadi angkanya masih berubah. Baris itu tidak ikut disimpan
+    supaya snapshot hanya berisi hari yang sudah final.
+    """
+    hari_ini = hari_ini if hari_ini is not None else pd.Timestamp.now(tz="UTC").tz_localize(None).normalize()
     df = ambil_harga_yahoo()
+    df = df[df["tanggal"] < hari_ini].reset_index(drop=True)
     df.to_csv(path, index=False)
     return df
 

@@ -142,3 +142,25 @@ def test_cocokkan_berita_memilih_yang_terdekat():
 def test_ringkasan_kosong():
     r = deteksi.ringkasan(pd.DataFrame())
     assert r == {"total": 0, "naik": 0, "turun": 0, "terjelaskan": 0, "persen_terjelaskan": 0.0}
+
+
+def test_z_score_pasar_datar_jadi_nan_bukan_inf():
+    # Harga tidak bergerak sama sekali -> volatilitas 0. Z-score harus NaN,
+    # bukan inf, supaya hari itu tidak ikut terdeteksi sebagai lonjakan.
+    df = deteksi.hitung_z_score(buat_harga([100] * 8), jendela=3)
+    assert not df["z_score"].isin([float("inf"), float("-inf")]).any()
+    assert df["z_score"].iloc[4:].isna().all()
+
+
+def test_z_score_sama_dengan_return_dibagi_volatilitas():
+    df = deteksi.hitung_z_score(buat_harga([100, 102, 99, 101, 120]), jendela=3)
+    baris = df.iloc[-1]
+    assert baris["z_score"] == pytest.approx(baris["return_pct"] / baris["volatilitas_pct"])
+    assert baris["z_score"] > 2.5  # lompatan ~19% jauh di atas gejolak normal
+
+
+def test_z_score_mengurutkan_tanggal_dulu():
+    acak = buat_harga([100, 102, 99, 101, 120]).sample(frac=1, random_state=0)
+    df = deteksi.hitung_z_score(acak, jendela=3)
+    assert df["tanggal"].is_monotonic_increasing
+    assert df["close"].iloc[-1] == 120

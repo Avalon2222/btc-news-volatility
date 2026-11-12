@@ -1,0 +1,29 @@
+name: Perbarui harga BTC
+
+on:
+  schedule:
+    - cron: "23 1 * * 1"   # setiap Senin 01:23 UTC (08:23 WIB)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  perbarui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas requests
+      - name: Unduh harga harian dari Yahoo Finance
+        run: python -m src.ambil_harga
+      - name: Commit bila ada perubahan
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/btc_harga_harian.csv
+          git diff --cached --quiet && echo "Tidak ada data baru" && exit 0
+          git commit -m "Perbarui harga BTC mingguan"
+          git push

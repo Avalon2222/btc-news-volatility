@@ -67,7 +67,7 @@ streamlit run app.py
 ```
 
 Buka `http://localhost:8501`. Jalankan tes dengan `python -m pytest tests/ -v`.
-Perbarui data harga dengan `python -m src.ambil_harga` (atau tombol di sidebar).
+Perbarui data harga dengan `python -m src.ambil_harga` (atau tombol di sidebar). Snapshot di `data/` juga diperbarui otomatis setiap Senin lewat GitHub Actions (`.github/workflows/perbarui-data.yml`).
 
 ## Cara kerja (ringkas)
 

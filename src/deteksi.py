@@ -106,7 +106,11 @@ def cocokkan_berita(
     tgl_berita = pd.to_datetime(berita["tanggal"]).to_numpy()
     for i, baris in hasil.iterrows():
         selisih = np.abs((tgl_berita - np.datetime64(baris["tanggal"])) / np.timedelta64(1, "D"))
-        idx_terdekat = int(selisih.argmin())
+        # Berita bertanggal kosong (NaT) menghasilkan NaN. argmin biasa akan memilih NaN itu,
+        # jadi pakai nanargmin dan lewati kalau tidak ada satu pun tanggal yang valid.
+        if np.isnan(selisih).all():
+            continue
+        idx_terdekat = int(np.nanargmin(selisih))
         if selisih[idx_terdekat] <= toleransi_hari:
             b = berita.iloc[idx_terdekat]
             hasil.loc[i, ["judul", "kategori", "penjelasan", "sumber_url"]] = [

@@ -215,3 +215,21 @@ def test_jendela_pendek_mulai_mendeteksi_lebih_awal():
     pendek = deteksi.deteksi_pergerakan(harga, jendela=5)
     assert pendek["tanggal"].tolist() == [harga["tanggal"].iloc[-1]]
     assert pendek["arah"].iloc[0] == "naik"
+
+
+def test_hitung_return_tidak_mengubah_dataframe_asli():
+    harga = buat_harga([100, 110, 99])[::-1]          # sengaja terbalik
+    salinan = harga.copy()
+    hasil = deteksi.hitung_return(harga)
+    pd.testing.assert_frame_equal(harga, salinan)
+    assert hasil["tanggal"].is_monotonic_increasing
+    assert hasil["return_pct"].iloc[1:].round(6).tolist() == [10.0, -10.0]
+
+
+def test_hitung_volatilitas_hitung_return_sendiri_bila_belum_ada():
+    harga = buat_harga([100 + i for i in range(10)])
+    hasil = deteksi.hitung_volatilitas(harga, jendela=3)
+    assert "return_pct" in hasil.columns
+    # Butuh 3 return + geser 1 hari: baris ke-0..3 belum punya volatilitas.
+    assert hasil["volatilitas_pct"].iloc[:4].isna().all()
+    assert hasil["volatilitas_pct"].iloc[4:].notna().all()

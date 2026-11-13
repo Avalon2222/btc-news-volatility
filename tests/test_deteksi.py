@@ -198,3 +198,20 @@ def test_cocokkan_berita_semua_tanggal_rusak():
                            "penjelasan": ["a"], "sumber_url": [""]})
     hasil = deteksi.cocokkan_berita(pergerakan, berita)
     assert hasil["kategori"].iloc[0] == "belum tercatat"
+
+
+def test_ringkasan_tanpa_kolom_kategori():
+    """Pergerakan yang belum dicocokkan dengan berita tetap bisa diringkas."""
+    pergerakan = pd.DataFrame({"arah": ["naik", "turun", "turun"]})
+    r = deteksi.ringkasan(pergerakan)
+    assert r == {"total": 3, "naik": 1, "turun": 2, "terjelaskan": 0, "persen_terjelaskan": 0.0}
+
+
+def test_jendela_pendek_mulai_mendeteksi_lebih_awal():
+    closes = [100 + (i % 2) for i in range(12)] + [130]
+    harga = buat_harga(closes)
+    # Dengan jendela 30 hari, 13 hari data belum cukup untuk punya volatilitas sama sekali.
+    assert deteksi.deteksi_pergerakan(harga, jendela=30).empty
+    pendek = deteksi.deteksi_pergerakan(harga, jendela=5)
+    assert pendek["tanggal"].tolist() == [harga["tanggal"].iloc[-1]]
+    assert pendek["arah"].iloc[0] == "naik"

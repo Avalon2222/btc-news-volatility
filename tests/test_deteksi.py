@@ -233,3 +233,12 @@ def test_hitung_volatilitas_hitung_return_sendiri_bila_belum_ada():
     # Butuh 3 return + geser 1 hari: baris ke-0..3 belum punya volatilitas.
     assert hasil["volatilitas_pct"].iloc[:4].isna().all()
     assert hasil["volatilitas_pct"].iloc[4:].notna().all()
+
+
+def test_data_asli_punya_titik_naik_dan_turun():
+    harga = muat_harga()
+    pergerakan = deteksi.deteksi_pergerakan(harga)
+    assert {"naik", "turun"} <= set(pergerakan["arah"])
+    assert (pergerakan["z_score"].abs() >= deteksi.AMBANG_Z_DEFAULT).all()
+    # Tanggal pergerakan selalu ada di data harga, tidak ada tanggal karangan.
+    assert set(pergerakan["tanggal"]) <= set(harga["tanggal"])

@@ -176,3 +176,25 @@ def test_isi_kosong_hanya_baris_tanpa_berita():
     assert hasil.loc[1, "kategori"] == "belum tercatat"
     assert "LATIHAN.md" in hasil.loc[1, "penjelasan"]
     assert hasil.loc[1, "sumber_url"] == ""
+
+
+def test_cocokkan_berita_abaikan_tanggal_berita_rusak():
+    """Satu berita bertanggal kosong tidak boleh membuat berita lain ikut tidak cocok."""
+    pergerakan = pd.DataFrame({"tanggal": pd.to_datetime(["2024-03-05"]), "return_pct": [8.0], "arah": ["naik"]})
+    berita = pd.DataFrame({
+        "tanggal": pd.to_datetime([None, "2024-03-05"]),
+        "judul": ["Tanpa tanggal", "ETF disetujui"],
+        "kategori": ["makro", "regulasi"],
+        "penjelasan": ["a", "b"],
+        "sumber_url": ["", "https://b.org"],
+    })
+    hasil = deteksi.cocokkan_berita(pergerakan, berita)
+    assert hasil["judul"].iloc[0] == "ETF disetujui"
+
+
+def test_cocokkan_berita_semua_tanggal_rusak():
+    pergerakan = pd.DataFrame({"tanggal": pd.to_datetime(["2024-03-05"]), "return_pct": [8.0], "arah": ["naik"]})
+    berita = pd.DataFrame({"tanggal": pd.to_datetime([None]), "judul": ["x"], "kategori": ["makro"],
+                           "penjelasan": ["a"], "sumber_url": [""]})
+    hasil = deteksi.cocokkan_berita(pergerakan, berita)
+    assert hasil["kategori"].iloc[0] == "belum tercatat"

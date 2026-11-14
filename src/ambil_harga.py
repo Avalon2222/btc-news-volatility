@@ -42,6 +42,8 @@ def ambil_harga_yahoo(mulai: str = "2020-01-01", sampai: str | None = None) -> p
     (app.py) bisa fallback ke CSV lokal.
     """
     akhir = _ke_unix(sampai) if sampai else int(datetime.now(tz=timezone.utc).timestamp())
+    if akhir <= _ke_unix(mulai):
+        raise ValueError(f"Tanggal 'sampai' harus setelah 'mulai' ({mulai})")
     params = {"interval": "1d", "period1": _ke_unix(mulai), "period2": akhir}
     r = requests.get(URL_YAHOO, params=params, headers=HEADER, timeout=20)
     r.raise_for_status()

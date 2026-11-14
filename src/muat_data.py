@@ -35,6 +35,10 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
     kurang = wajib - set(df.columns)
     if kurang:
         raise ValueError(f"Kolom hilang di {path.name}: {sorted(kurang)}")
+    kosong = df["kategori"].isna()
+    if kosong.any():
+        baris = [int(i) + 2 for i in df.index[kosong]]  # +2: header dan nomor baris mulai dari 1
+        raise ValueError(f"Kategori kosong di {path.name}, baris: {baris}")
     asing = set(df["kategori"].unique()) - KATEGORI_VALID
     if asing:
         raise ValueError(

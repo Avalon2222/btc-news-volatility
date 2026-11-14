@@ -112,3 +112,14 @@ def test_perbarui_csv_buang_candle_hari_ini(monkeypatch, tmp_path):
     df = ambil_harga.perbarui_csv(path, hari_ini=pd.Timestamp("2026-11-09"))
     assert df["tanggal"].dt.strftime("%Y-%m-%d").tolist() == ["2026-11-07", "2026-11-08"]
     assert pd.read_csv(path)["tanggal"].tolist() == ["2026-11-07", "2026-11-08"]
+
+
+def test_muat_berita_kategori_kosong_sebut_nomor_baris(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text(
+        KOLOM_BERITA
+        + "2024-01-01,A,geopolitik,Penjelasan A,\n"
+        + "2024-01-02,B,,Lupa isi kategori,\n"
+    )
+    with pytest.raises(ValueError, match=r"Kategori kosong.*\[3\]"):
+        muat_berita(csv)

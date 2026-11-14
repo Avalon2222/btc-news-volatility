@@ -74,6 +74,8 @@ def deteksi_pergerakan(
 
     Kolom tambahan `arah`: "naik" kalau return positif, "turun" kalau negatif.
     """
+    if not ambang_z > 0:
+        raise ValueError(f"ambang_z harus lebih dari 0, dapat {ambang_z}")
     lengkap = hitung_z_score(df, jendela)
     signifikan = lengkap[lengkap["z_score"].abs() >= ambang_z].copy()
     signifikan["arah"] = np.where(signifikan["return_pct"] > 0, "naik", "turun")

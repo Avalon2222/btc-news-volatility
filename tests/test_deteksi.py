@@ -242,3 +242,10 @@ def test_data_asli_punya_titik_naik_dan_turun():
     assert (pergerakan["z_score"].abs() >= deteksi.AMBANG_Z_DEFAULT).all()
     # Tanggal pergerakan selalu ada di data harga, tidak ada tanggal karangan.
     assert set(pergerakan["tanggal"]) <= set(harga["tanggal"])
+
+
+@pytest.mark.parametrize("jendela", [0, 1])
+def test_jendela_terlalu_kecil_ditolak(jendela):
+    # std dari 1 angka selalu NaN, jadi z-score-nya kosong semua tanpa peringatan.
+    with pytest.raises(ValueError, match="jendela minimal 2"):
+        deteksi.hitung_volatilitas(buat_harga([100, 101, 102]), jendela=jendela)

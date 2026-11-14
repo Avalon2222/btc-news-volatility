@@ -249,3 +249,12 @@ def test_jendela_terlalu_kecil_ditolak(jendela):
     # std dari 1 angka selalu NaN, jadi z-score-nya kosong semua tanpa peringatan.
     with pytest.raises(ValueError, match="jendela minimal 2"):
         deteksi.hitung_volatilitas(buat_harga([100, 101, 102]), jendela=jendela)
+
+
+def test_return_buang_tanggal_dobel():
+    df = pd.DataFrame({"tanggal": pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-02", "2024-01-03"]),
+                       "close": [100, 105, 110, 121]})
+    hasil = deteksi.hitung_return(df)
+    assert len(hasil) == 3
+    assert hasil["return_pct"].iloc[1] == pytest.approx(10.0)   # pakai baris terakhir (110)
+    assert hasil["return_pct"].iloc[2] == pytest.approx(10.0)

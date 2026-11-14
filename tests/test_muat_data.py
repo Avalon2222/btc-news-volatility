@@ -132,3 +132,10 @@ def test_ambil_harga_yahoo_tolak_rentang_terbalik(monkeypatch):
     monkeypatch.setattr(ambil_harga.requests, "get", jangan_dipanggil)
     with pytest.raises(ValueError, match="setelah 'mulai'"):
         ambil_harga.ambil_harga_yahoo("2024-05-01", "2024-01-01")
+
+
+def test_muat_harga_kolom_close_hilang_langsung_error(tmp_path):
+    csv = tmp_path / "harga.csv"
+    csv.write_text("tanggal,open,high,low,volume\n2024-01-01,1,1,1,1\n")
+    with pytest.raises(ValueError, match="close"):
+        muat_harga(csv)

@@ -20,7 +20,11 @@ KATEGORI_VALID = {"trump_politik_as", "the_fed_makro", "geopolitik", "regulasi",
 def muat_harga(path: Path | None = None) -> pd.DataFrame:
     """Baca CSV harga. Kolom: tanggal (datetime), open, high, low, close, volume."""
     path = path or FOLDER_DATA / "btc_harga_harian.csv"
-    df = pd.read_csv(path, parse_dates=["tanggal"])
+    df = pd.read_csv(path)
+    kurang = {"tanggal", "close"} - set(df.columns)
+    if kurang:
+        raise ValueError(f"Kolom hilang di {Path(path).name}: {sorted(kurang)}")
+    df["tanggal"] = pd.to_datetime(df["tanggal"])
     return df.sort_values("tanggal").reset_index(drop=True)
 
 

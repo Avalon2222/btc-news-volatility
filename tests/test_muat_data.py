@@ -123,3 +123,12 @@ def test_muat_berita_kategori_kosong_sebut_nomor_baris(tmp_path):
     )
     with pytest.raises(ValueError, match=r"Kategori kosong.*\[3\]"):
         muat_berita(csv)
+
+
+def test_ambil_harga_yahoo_tolak_rentang_terbalik(monkeypatch):
+    def jangan_dipanggil(*a, **k):
+        raise AssertionError("request tidak boleh dikirim kalau rentang tanggal salah")
+
+    monkeypatch.setattr(ambil_harga.requests, "get", jangan_dipanggil)
+    with pytest.raises(ValueError, match="setelah 'mulai'"):
+        ambil_harga.ambil_harga_yahoo("2024-05-01", "2024-01-01")

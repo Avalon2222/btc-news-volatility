@@ -34,7 +34,8 @@ def hitung_return(df: pd.DataFrame) -> pd.DataFrame:
     Contoh: close kemarin 100, hari ini 110 -> return_pct = 10.0
     Hari pertama tidak punya "kemarin", jadi nilainya NaN.
     """
-    hasil = df.sort_values("tanggal").reset_index(drop=True).copy()
+    # Tanggal dobel (misalnya snapshot lama + unduhan baru digabung) membuat return palsu 0%; ambil yang terakhir.
+    hasil = df.drop_duplicates("tanggal", keep="last").sort_values("tanggal").reset_index(drop=True).copy()
     hasil["return_pct"] = hasil["close"].pct_change() * 100
     return hasil
 

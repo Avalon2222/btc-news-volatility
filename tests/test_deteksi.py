@@ -258,3 +258,9 @@ def test_return_buang_tanggal_dobel():
     assert len(hasil) == 3
     assert hasil["return_pct"].iloc[1] == pytest.approx(10.0)   # pakai baris terakhir (110)
     assert hasil["return_pct"].iloc[2] == pytest.approx(10.0)
+
+
+@pytest.mark.parametrize("ambang", [0, -1])
+def test_ambang_z_harus_positif(ambang):
+    with pytest.raises(ValueError, match="ambang_z"):
+        deteksi.deteksi_pergerakan(buat_harga([100] * 40), ambang_z=ambang)

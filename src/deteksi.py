@@ -46,6 +46,8 @@ def hitung_volatilitas(df: pd.DataFrame, jendela: int = JENDELA_DEFAULT) -> pd.D
     sendiri. Kalau tidak di-shift, hari crash besar akan membesarkan volatilitas
     dan menyembunyikan dirinya sendiri.
     """
+    if jendela < 2:
+        raise ValueError(f"jendela minimal 2 hari supaya std bisa dihitung, dapat {jendela}")
     hasil = df.copy()
     if "return_pct" not in hasil.columns:
         hasil = hitung_return(hasil)

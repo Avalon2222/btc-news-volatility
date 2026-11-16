@@ -144,7 +144,11 @@ def ringkasan(pergerakan: pd.DataFrame) -> dict:
     """Angka-angka kecil untuk kartu ringkasan di dashboard."""
     if pergerakan.empty:
         return {"total": 0, "naik": 0, "turun": 0, "terjelaskan": 0, "persen_terjelaskan": 0.0}
-    terjelaskan = int((pergerakan["kategori"] != "belum tercatat").sum()) if "kategori" in pergerakan else 0
+    if "kategori" in pergerakan:
+        kategori = pergerakan["kategori"]
+        terjelaskan = int((kategori.notna() & (kategori != "belum tercatat")).sum())
+    else:
+        terjelaskan = 0
     return {
         "total": int(len(pergerakan)),
         "naik": int((pergerakan["arah"] == "naik").sum()),

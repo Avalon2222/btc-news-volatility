@@ -154,3 +154,15 @@ def test_muat_berita_tanpa_kolom_tanggal_pesan_jelas(tmp_path):
     csv.write_text("judul,kategori,penjelasan,sumber_url\nTes,geopolitik,Tanpa tanggal,\n")
     with pytest.raises(ValueError, match=r"Kolom hilang.*tanggal"):
         muat_berita(csv)
+
+
+def test_ambil_harga_yahoo_respons_error_dan_kosong(monkeypatch):
+    galat = {"chart": {"result": None, "error": {"code": "Not Found", "description": "No data found"}}}
+    monkeypatch.setattr(ambil_harga.requests, "get", lambda *a, **k: _ResponsPalsu(galat))
+    with pytest.raises(ValueError, match="Not Found"):
+        ambil_harga.ambil_harga_yahoo("2024-01-01", "2024-01-05")
+
+    tanpa_candle = {"chart": {"result": [{"meta": {}, "indicators": {"quote": [{}]}}], "error": None}}
+    monkeypatch.setattr(ambil_harga.requests, "get", lambda *a, **k: _ResponsPalsu(tanpa_candle))
+    df = ambil_harga.ambil_harga_yahoo("2024-01-01", "2024-01-05")
+    assert df.empty and list(df.columns) == ["tanggal", "open", "high", "low", "close", "volume"]

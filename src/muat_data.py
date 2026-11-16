@@ -33,7 +33,7 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
 
     Kolom wajib: tanggal, judul, kategori, penjelasan, sumber_url
     """
-    path = path or FOLDER_DATA / "berita_besar.csv"
+    path = Path(path or FOLDER_DATA / "berita_besar.csv")   # path boleh berupa string
     df = pd.read_csv(path, parse_dates=["tanggal"])
     wajib = {"tanggal", "judul", "kategori", "penjelasan", "sumber_url"}
     kurang = wajib - set(df.columns)

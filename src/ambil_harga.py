@@ -48,7 +48,14 @@ def ambil_harga_yahoo(mulai: str = "2020-01-01", sampai: str | None = None) -> p
     r = requests.get(URL_YAHOO, params=params, headers=HEADER, timeout=20)
     r.raise_for_status()
 
-    hasil = r.json()["chart"]["result"][0]
+    chart = r.json().get("chart") or {}
+    if not chart.get("result"):
+        # Yahoo membalas {"result": null, "error": {...}} untuk simbol/rentang yang tidak valid.
+        raise ValueError(f"Yahoo tidak mengirim data: {chart.get('error') or 'respons kosong'}")
+    hasil = chart["result"][0]
+    if not hasil.get("timestamp"):
+        # Rentang tanpa candle sama sekali: kolom timestamp tidak dikirim.
+        return pd.DataFrame(columns=["tanggal", "open", "high", "low", "close", "volume"])
     kutipan = hasil["indicators"]["quote"][0]
     df = pd.DataFrame(
         {

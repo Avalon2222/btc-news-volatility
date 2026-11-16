@@ -264,3 +264,24 @@ def test_return_buang_tanggal_dobel():
 def test_ambang_z_harus_positif(ambang):
     with pytest.raises(ValueError, match="ambang_z"):
         deteksi.deteksi_pergerakan(buat_harga([100] * 40), ambang_z=ambang)
+
+
+def test_hitung_return_buang_tanggal_kosong():
+    df = pd.DataFrame({
+        "tanggal": pd.to_datetime(["2024-01-01", None, "2024-01-02"]),
+        "close": [100.0, 5.0, 110.0],
+    })
+    hasil = deteksi.hitung_return(df)
+    assert len(hasil) == 2
+    assert hasil["tanggal"].notna().all()
+    assert hasil["return_pct"].iloc[1] == pytest.approx(10.0)
+
+
+def test_ringkasan_kategori_kosong_tidak_terjelaskan():
+    pergerakan = pd.DataFrame({
+        "arah": ["naik", "turun", "naik"],
+        "kategori": ["regulasi", None, "belum tercatat"],
+    })
+    r = deteksi.ringkasan(pergerakan)
+    assert r["terjelaskan"] == 1
+    assert r["persen_terjelaskan"] == pytest.approx(33.3)

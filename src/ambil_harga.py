@@ -83,6 +83,9 @@ def perbarui_csv(path: Path = PATH_CSV, hari_ini: pd.Timestamp | None = None) ->
     hari_ini = hari_ini if hari_ini is not None else pd.Timestamp.now(tz="UTC").tz_localize(None).normalize()
     df = ambil_harga_yahoo()
     df = df[df["tanggal"] < hari_ini].reset_index(drop=True)
+    if df.empty:
+        # Jangan timpa snapshot yang ada dengan file kosong; app.py butuh CSV ini sebagai cadangan.
+        raise ValueError("Unduhan harga kosong, CSV lama tidak ditimpa")
     df.to_csv(path, index=False)
     return df
 

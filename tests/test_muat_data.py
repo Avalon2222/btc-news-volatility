@@ -166,3 +166,14 @@ def test_ambil_harga_yahoo_respons_error_dan_kosong(monkeypatch):
     monkeypatch.setattr(ambil_harga.requests, "get", lambda *a, **k: _ResponsPalsu(tanpa_candle))
     df = ambil_harga.ambil_harga_yahoo("2024-01-01", "2024-01-05")
     assert df.empty and list(df.columns) == ["tanggal", "open", "high", "low", "close", "volume"]
+
+
+def test_perbarui_csv_tidak_menimpa_dengan_data_kosong(monkeypatch, tmp_path):
+    path = tmp_path / "btc.csv"
+    path.write_text("tanggal,close\n2026-11-07,1.0\n")
+    kosong = pd.DataFrame(columns=["tanggal", "open", "high", "low", "close", "volume"])
+    kosong["tanggal"] = pd.to_datetime(kosong["tanggal"])
+    monkeypatch.setattr(ambil_harga, "ambil_harga_yahoo", lambda: kosong)
+    with pytest.raises(ValueError, match="tidak ditimpa"):
+        ambil_harga.perbarui_csv(path, hari_ini=pd.Timestamp("2026-11-09"))
+    assert path.read_text() == "tanggal,close\n2026-11-07,1.0\n"

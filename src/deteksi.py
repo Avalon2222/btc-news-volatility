@@ -35,7 +35,9 @@ def hitung_return(df: pd.DataFrame) -> pd.DataFrame:
     Hari pertama tidak punya "kemarin", jadi nilainya NaN.
     """
     # Tanggal dobel (misalnya snapshot lama + unduhan baru digabung) membuat return palsu 0%; ambil yang terakhir.
-    hasil = df.drop_duplicates("tanggal", keep="last").sort_values("tanggal").reset_index(drop=True).copy()
+    # Baris tanpa tanggal (NaT) dibuang: kalau ikut, ia tersortir ke paling akhir dan memberi return palsu.
+    hasil = (df.dropna(subset=["tanggal"]).drop_duplicates("tanggal", keep="last")
+               .sort_values("tanggal").reset_index(drop=True).copy())
     hasil["return_pct"] = hasil["close"].pct_change() * 100
     return hasil
 

@@ -139,3 +139,11 @@ def test_muat_harga_kolom_close_hilang_langsung_error(tmp_path):
     csv.write_text("tanggal,open,high,low,volume\n2024-01-01,1,1,1,1\n")
     with pytest.raises(ValueError, match="close"):
         muat_harga(csv)
+
+
+def test_muat_berita_terima_path_string(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text(KOLOM_BERITA + "2024-01-01,Tes,geopolitk,Salah ketik,\n")
+    # Pesan error memakai nama file; dulu path string membuat AttributeError, bukan ValueError.
+    with pytest.raises(ValueError, match="berita.csv"):
+        muat_berita(str(csv))

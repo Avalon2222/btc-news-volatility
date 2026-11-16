@@ -147,3 +147,10 @@ def test_muat_berita_terima_path_string(tmp_path):
     # Pesan error memakai nama file; dulu path string membuat AttributeError, bukan ValueError.
     with pytest.raises(ValueError, match="berita.csv"):
         muat_berita(str(csv))
+
+
+def test_muat_berita_tanpa_kolom_tanggal_pesan_jelas(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text("judul,kategori,penjelasan,sumber_url\nTes,geopolitik,Tanpa tanggal,\n")
+    with pytest.raises(ValueError, match=r"Kolom hilang.*tanggal"):
+        muat_berita(csv)

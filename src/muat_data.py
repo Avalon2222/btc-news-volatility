@@ -34,11 +34,14 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
     Kolom wajib: tanggal, judul, kategori, penjelasan, sumber_url
     """
     path = Path(path or FOLDER_DATA / "berita_besar.csv")   # path boleh berupa string
-    df = pd.read_csv(path, parse_dates=["tanggal"])
+    # Tanggal diubah setelah cek kolom: parse_dates di read_csv langsung error dengan pesan pandas
+    # yang membingungkan kalau kolom tanggal tidak ada.
+    df = pd.read_csv(path)
     wajib = {"tanggal", "judul", "kategori", "penjelasan", "sumber_url"}
     kurang = wajib - set(df.columns)
     if kurang:
         raise ValueError(f"Kolom hilang di {path.name}: {sorted(kurang)}")
+    df["tanggal"] = pd.to_datetime(df["tanggal"])
     kosong = df["kategori"].isna()
     if kosong.any():
         baris = [int(i) + 2 for i in df.index[kosong]]  # +2: header dan nomor baris mulai dari 1

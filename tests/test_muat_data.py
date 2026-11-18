@@ -191,3 +191,14 @@ def test_muat_berita_kategori_spasi_saja_dianggap_kosong(tmp_path):
     csv.write_text(KOLOM_BERITA + '2024-01-01,A,"  ",Kosong,\n')
     with pytest.raises(ValueError, match="Kategori kosong"):
         muat_berita(csv)
+
+
+def test_muat_berita_semua_url_kosong_tanpa_warning(tmp_path):
+    import warnings
+
+    csv = tmp_path / "berita.csv"
+    csv.write_text(KOLOM_BERITA + "2024-01-01,A,geopolitik,Tanpa sumber,\n")
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        df = muat_berita(csv)
+    assert df["sumber_url"].tolist() == [""]

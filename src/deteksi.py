@@ -112,9 +112,12 @@ def cocokkan_berita(
     if berita.empty:
         return _isi_kosong(hasil)
 
-    tgl_berita = pd.to_datetime(berita["tanggal"]).to_numpy()
+    # Selisih dihitung per hari kalender: berita "2024-03-06 23:00" tetap 1 hari dari candle 2024-03-05,
+    # bukan 1,96 hari yang lolos dari toleransi.
+    tgl_berita = pd.to_datetime(berita["tanggal"]).dt.normalize().to_numpy()
     for i, baris in hasil.iterrows():
-        selisih = np.abs((tgl_berita - np.datetime64(baris["tanggal"])) / np.timedelta64(1, "D"))
+        tgl_gerak = np.datetime64(pd.Timestamp(baris["tanggal"]).normalize())
+        selisih = np.abs((tgl_berita - tgl_gerak) / np.timedelta64(1, "D"))
         # Berita bertanggal kosong (NaT) menghasilkan NaN. argmin biasa akan memilih NaN itu,
         # jadi pakai nanargmin dan lewati kalau tidak ada satu pun tanggal yang valid.
         if np.isnan(selisih).all():

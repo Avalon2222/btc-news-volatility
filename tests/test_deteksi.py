@@ -316,3 +316,20 @@ def test_cocokkan_berita_berjam_dihitung_per_hari_kalender():
     hasil = deteksi.cocokkan_berita(pergerakan, berita, toleransi_hari=1)
     assert hasil["judul"].iloc[0] == "Pengumuman malam"
     assert hasil["selisih_hari"].iloc[0] == 1
+
+
+def test_cocokkan_berita_index_dobel_tidak_saling_timpa():
+    # Gabungan dua hasil deteksi lewat pd.concat punya label index dobel.
+    a = pd.DataFrame({"tanggal": pd.to_datetime(["2024-03-05"]), "return_pct": [8.0], "arah": ["naik"]})
+    b = pd.DataFrame({"tanggal": pd.to_datetime(["2024-09-01"]), "return_pct": [-9.0], "arah": ["turun"]})
+    pergerakan = pd.concat([a, b])
+    berita = pd.DataFrame({
+        "tanggal": pd.to_datetime(["2024-03-05"]),
+        "judul": ["ETF disetujui"],
+        "kategori": ["regulasi"],
+        "penjelasan": ["a"],
+        "sumber_url": [""],
+    })
+    hasil = deteksi.cocokkan_berita(pergerakan, berita)
+    assert hasil["judul"].tolist() == ["ETF disetujui", "Penyebab belum tercatat"]
+    assert hasil.index.tolist() == [0, 0]

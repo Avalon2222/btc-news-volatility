@@ -6,6 +6,7 @@ Pola tiap tes: SIAPKAN data kecil yang bisa dihitung di kepala -> PANGGIL fungsi
 apakah ada yang rusak.
 """
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -285,3 +286,14 @@ def test_ringkasan_kategori_kosong_tidak_terjelaskan():
     r = deteksi.ringkasan(pergerakan)
     assert r["terjelaskan"] == 1
     assert r["persen_terjelaskan"] == pytest.approx(33.3)
+
+
+def test_close_kosong_atau_nol_tidak_jadi_return_tak_hingga():
+    df = pd.DataFrame({
+        "tanggal": pd.date_range("2024-01-01", periods=5),
+        "close": [100.0, 0.0, 110.0, None, 121.0],
+    })
+    hasil = deteksi.hitung_return(df)
+    assert list(hasil["tanggal"].dt.day) == [1, 3, 5]
+    assert hasil["return_pct"].iloc[1:].round(6).tolist() == [10.0, 10.0]
+    assert np.isfinite(hasil["return_pct"].iloc[1:]).all()

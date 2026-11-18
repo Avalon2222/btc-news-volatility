@@ -297,3 +297,22 @@ def test_close_kosong_atau_nol_tidak_jadi_return_tak_hingga():
     assert list(hasil["tanggal"].dt.day) == [1, 3, 5]
     assert hasil["return_pct"].iloc[1:].round(6).tolist() == [10.0, 10.0]
     assert np.isfinite(hasil["return_pct"].iloc[1:]).all()
+
+
+def test_cocokkan_berita_berjam_dihitung_per_hari_kalender():
+    # Berita malam hari setelah pergerakan tetap terhitung selisih 1 hari, bukan 1,96 hari.
+    pergerakan = pd.DataFrame({
+        "tanggal": pd.to_datetime(["2024-03-05"]),
+        "return_pct": [8.0],
+        "arah": ["naik"],
+    })
+    berita = pd.DataFrame({
+        "tanggal": pd.to_datetime(["2024-03-06 23:00"]),
+        "judul": ["Pengumuman malam"],
+        "kategori": ["regulasi"],
+        "penjelasan": ["a"],
+        "sumber_url": [""],
+    })
+    hasil = deteksi.cocokkan_berita(pergerakan, berita, toleransi_hari=1)
+    assert hasil["judul"].iloc[0] == "Pengumuman malam"
+    assert hasil["selisih_hari"].iloc[0] == 1

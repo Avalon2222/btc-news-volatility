@@ -177,3 +177,17 @@ def test_perbarui_csv_tidak_menimpa_dengan_data_kosong(monkeypatch, tmp_path):
     with pytest.raises(ValueError, match="tidak ditimpa"):
         ambil_harga.perbarui_csv(path, hari_ini=pd.Timestamp("2026-11-09"))
     assert path.read_text() == "tanggal,close\n2026-11-07,1.0\n"
+
+
+def test_muat_berita_kategori_dirapikan_spasi_dan_huruf(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text(KOLOM_BERITA + '2024-01-01,A," Geopolitik ",Spasi,\n2024-01-02,B,REGULASI,Kapital,\n')
+    df = muat_berita(csv)
+    assert df["kategori"].tolist() == ["geopolitik", "regulasi"]
+
+
+def test_muat_berita_kategori_spasi_saja_dianggap_kosong(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text(KOLOM_BERITA + '2024-01-01,A,"  ",Kosong,\n')
+    with pytest.raises(ValueError, match="Kategori kosong"):
+        muat_berita(csv)

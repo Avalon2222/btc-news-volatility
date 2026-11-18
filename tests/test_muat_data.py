@@ -54,6 +54,17 @@ def test_muat_berita_kategori_salah_ketik_ketahuan(tmp_path):
         muat_berita(csv)
 
 
+def test_muat_berita_tanggal_salah_ketik_sebut_barisnya(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text(
+        KOLOM_BERITA
+        + "2024-01-01,A,geopolitik,Benar,\n"
+        + "2024-13-45,B,regulasi,Bulan 13,\n"
+    )
+    with pytest.raises(ValueError, match=r"baris: \[3\]"):
+        muat_berita(csv)
+
+
 def test_muat_berita_url_kosong_jadi_string_kosong(tmp_path):
     csv = tmp_path / "berita.csv"
     csv.write_text(

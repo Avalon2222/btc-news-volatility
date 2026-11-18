@@ -44,7 +44,12 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
     kurang = wajib - set(df.columns)
     if kurang:
         raise ValueError(f"Kolom hilang di {path.name}: {sorted(kurang)}")
-    df["tanggal"] = pd.to_datetime(df["tanggal"])
+    tanggal = pd.to_datetime(df["tanggal"], errors="coerce", format="mixed")
+    rusak = tanggal.isna()
+    if rusak.any():
+        baris = [int(i) + 2 for i in df.index[rusak]]  # +2: header dan nomor baris mulai dari 1
+        raise ValueError(f"Tanggal kosong atau tidak valid di {path.name}, baris: {baris}")
+    df["tanggal"] = tanggal
     # " Geopolitik" hasil edit manual di spreadsheet tetap kategori yang sama.
     df["kategori"] = df["kategori"].map(lambda k: k.strip().lower() or None if isinstance(k, str) else None)
     kosong = df["kategori"].isna()

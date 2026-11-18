@@ -54,5 +54,6 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
             f"Kategori tidak dikenal di {path.name}: {sorted(asing)}. "
             f"Pilihan: {sorted(KATEGORI_VALID)}"
         )
-    df["sumber_url"] = df["sumber_url"].fillna("")
+    # Kolom yang kosong semua dibaca sebagai float; ubah ke object dulu supaya fillna("") tidak memicu warning.
+    df["sumber_url"] = df["sumber_url"].astype(object).fillna("")
     return df.sort_values("tanggal").reset_index(drop=True)

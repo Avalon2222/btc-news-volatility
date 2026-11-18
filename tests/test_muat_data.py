@@ -28,6 +28,18 @@ def test_muat_harga_diurutkan_dan_tanggal_jadi_datetime(tmp_path):
     assert df.index.tolist() == [0, 1, 2]
 
 
+def test_muat_harga_format_tanggal_campur_zona_waktu(tmp_path):
+    csv = tmp_path / "harga.csv"
+    csv.write_text(
+        "tanggal,close\n"
+        "2024-01-01,100\n"
+        "2024-01-02 00:00:00+00:00,110\n"
+    )
+    df = muat_harga(csv)
+    assert df["tanggal"].dt.tz is None
+    assert df["tanggal"].tolist() == list(pd.to_datetime(["2024-01-01", "2024-01-02"]))
+
+
 def test_muat_berita_kolom_hilang_langsung_error(tmp_path):
     csv = tmp_path / "berita.csv"
     csv.write_text("tanggal,judul,kategori\n2024-01-01,Tes,geopolitik\n")

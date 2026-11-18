@@ -24,7 +24,10 @@ def muat_harga(path: Path | None = None) -> pd.DataFrame:
     kurang = {"tanggal", "close"} - set(df.columns)
     if kurang:
         raise ValueError(f"Kolom hilang di {Path(path).name}: {sorted(kurang)}")
-    df["tanggal"] = pd.to_datetime(df["tanggal"])
+    # Snapshot lama ("2024-01-01") bisa tercampur unduhan baru yang membawa zona waktu
+    # ("2024-01-02 00:00:00+00:00"). Samakan ke UTC lalu buang zonanya supaya bisa dibandingkan
+    # dengan tanggal berita yang tanpa zona waktu.
+    df["tanggal"] = pd.to_datetime(df["tanggal"], format="ISO8601", utc=True).dt.tz_localize(None)
     return df.sort_values("tanggal").reset_index(drop=True)
 
 

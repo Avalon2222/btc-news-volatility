@@ -104,13 +104,18 @@ def cocokkan_berita(
 
     Hasil: pergerakan + kolom judul, kategori, penjelasan, sumber_url, selisih_hari.
     """
-    hasil = pergerakan.copy()
+    # Index dibuat unik dulu: pergerakan hasil pd.concat bisa punya label dobel (0, 1, 0, 1), dan
+    # hasil.loc[i, ...] lalu menulis berita yang sama ke semua baris berlabel i.
+    if not toleransi_hari >= 0:   # "not >=" juga menolak NaN
+        raise ValueError(f"toleransi_hari tidak boleh negatif, dapat {toleransi_hari}")
+    index_asli = pergerakan.index
+    hasil = pergerakan.reset_index(drop=True)
     kolom_berita = ["judul", "kategori", "penjelasan", "sumber_url", "selisih_hari"]
     for kolom in kolom_berita:
         hasil[kolom] = None
 
     if berita.empty:
-        return _isi_kosong(hasil)
+        return _isi_kosong(hasil).set_axis(index_asli)
 
     # Selisih dihitung per hari kalender: berita "2024-03-06 23:00" tetap 1 hari dari candle 2024-03-05,
     # bukan 1,96 hari yang lolos dari toleransi.
@@ -129,7 +134,7 @@ def cocokkan_berita(
                 b["judul"], b["kategori"], b["penjelasan"], b["sumber_url"]
             ]
             hasil.loc[i, "selisih_hari"] = int(selisih[idx_terdekat])
-    return _isi_kosong(hasil)
+    return _isi_kosong(hasil).set_axis(index_asli)
 
 
 def _isi_kosong(df: pd.DataFrame) -> pd.DataFrame:

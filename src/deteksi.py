@@ -106,6 +106,8 @@ def cocokkan_berita(
     """
     # Index dibuat unik dulu: pergerakan hasil pd.concat bisa punya label dobel (0, 1, 0, 1), dan
     # hasil.loc[i, ...] lalu menulis berita yang sama ke semua baris berlabel i.
+    if not toleransi_hari >= 0:   # "not >=" juga menolak NaN
+        raise ValueError(f"toleransi_hari tidak boleh negatif, dapat {toleransi_hari}")
     index_asli = pergerakan.index
     hasil = pergerakan.reset_index(drop=True)
     kolom_berita = ["judul", "kategori", "penjelasan", "sumber_url", "selisih_hari"]

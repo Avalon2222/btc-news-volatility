@@ -246,3 +246,17 @@ def test_perbarui_csv_hari_ini_dengan_jam_tetap_buang_candle_berjalan(monkeypatc
     monkeypatch.setattr(ambil_harga, "ambil_harga_yahoo", lambda: palsu)
     df = ambil_harga.perbarui_csv(tmp_path / "btc.csv", hari_ini=pd.Timestamp("2026-11-09 10:30"))
     assert df["tanggal"].dt.strftime("%Y-%m-%d").tolist() == ["2026-11-08"]
+
+
+def test_perbarui_csv_hari_ini_berzona_waktu(monkeypatch, tmp_path):
+    palsu = pd.DataFrame({"tanggal": pd.to_datetime(["2026-11-08", "2026-11-09"]),
+                          "open": [1.0, 2.0], "high": [1.0, 2.0], "low": [1.0, 2.0],
+                          "close": [1.0, 2.0], "volume": [1, 2]})
+    monkeypatch.setattr(ambil_harga, "ambil_harga_yahoo", lambda: palsu)
+    # 9 November 03:00 WIB masih 8 November 20:00 UTC, jadi candle 8 November belum final.
+    hari_ini = pd.Timestamp("2026-11-09 03:00", tz="Asia/Jakarta")
+    with pytest.raises(ValueError, match="kosong"):
+        ambil_harga.perbarui_csv(tmp_path / "btc.csv", hari_ini=hari_ini)
+    hari_ini = pd.Timestamp("2026-11-09 08:00", tz="Asia/Jakarta")
+    df = ambil_harga.perbarui_csv(tmp_path / "btc.csv", hari_ini=hari_ini)
+    assert df["tanggal"].dt.strftime("%Y-%m-%d").tolist() == ["2026-11-08"]

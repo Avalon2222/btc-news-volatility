@@ -225,3 +225,15 @@ def test_muat_berita_semua_url_kosong_tanpa_warning(tmp_path):
         warnings.simplefilter("error")
         df = muat_berita(csv)
     assert df["sumber_url"].tolist() == [""]
+
+
+def test_muat_berita_tanggal_berzona_waktu_jadi_utc(tmp_path):
+    from src import deteksi
+
+    csv = tmp_path / "berita.csv"
+    csv.write_text(KOLOM_BERITA + "2024-03-06T23:00:00+07:00,A,geopolitik,WIB,\n2024-03-09,B,regulasi,Polos,\n")
+    df = muat_berita(csv)
+    assert df["tanggal"].dt.tz is None
+    assert df["tanggal"].dt.strftime("%Y-%m-%d %H:%M").tolist() == ["2024-03-06 16:00", "2024-03-09 00:00"]
+    gerak = pd.DataFrame({"tanggal": [pd.Timestamp("2024-03-06")], "arah": ["naik"]})
+    assert deteksi.cocokkan_berita(gerak, df)["judul"].tolist() == ["A"]

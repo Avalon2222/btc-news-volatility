@@ -80,7 +80,9 @@ def perbarui_csv(path: Path = PATH_CSV, hari_ini: pd.Timestamp | None = None) ->
     Candle hari ini (UTC) belum ditutup, jadi angkanya masih berubah. Baris itu tidak ikut disimpan
     supaya snapshot hanya berisi hari yang sudah final.
     """
-    hari_ini = hari_ini if hari_ini is not None else pd.Timestamp.now(tz="UTC").tz_localize(None).normalize()
+    hari_ini = pd.Timestamp(hari_ini) if hari_ini is not None else pd.Timestamp.now(tz="UTC").tz_localize(None)
+    # Candle hari ini berlabel 00:00, jadi batasnya harus awal hari; "2026-11-09 10:00" tetap membuang candle 9 November.
+    hari_ini = hari_ini.normalize()
     df = ambil_harga_yahoo()
     df = df[df["tanggal"] < hari_ini].reset_index(drop=True)
     if df.empty:

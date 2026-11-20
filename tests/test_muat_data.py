@@ -237,3 +237,12 @@ def test_muat_berita_tanggal_berzona_waktu_jadi_utc(tmp_path):
     assert df["tanggal"].dt.strftime("%Y-%m-%d %H:%M").tolist() == ["2024-03-06 16:00", "2024-03-09 00:00"]
     gerak = pd.DataFrame({"tanggal": [pd.Timestamp("2024-03-06")], "arah": ["naik"]})
     assert deteksi.cocokkan_berita(gerak, df)["judul"].tolist() == ["A"]
+
+
+def test_perbarui_csv_hari_ini_dengan_jam_tetap_buang_candle_berjalan(monkeypatch, tmp_path):
+    palsu = pd.DataFrame({"tanggal": pd.to_datetime(["2026-11-08", "2026-11-09"]),
+                          "open": [1.0, 2.0], "high": [1.0, 2.0], "low": [1.0, 2.0],
+                          "close": [1.0, 2.0], "volume": [1, 2]})
+    monkeypatch.setattr(ambil_harga, "ambil_harga_yahoo", lambda: palsu)
+    df = ambil_harga.perbarui_csv(tmp_path / "btc.csv", hari_ini=pd.Timestamp("2026-11-09 10:30"))
+    assert df["tanggal"].dt.strftime("%Y-%m-%d").tolist() == ["2026-11-08"]

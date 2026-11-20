@@ -44,7 +44,10 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
     kurang = wajib - set(df.columns)
     if kurang:
         raise ValueError(f"Kolom hilang di {path.name}: {sorted(kurang)}")
-    tanggal = pd.to_datetime(df["tanggal"], errors="coerce", format="mixed")
+    # Tanggal berzona waktu ("2024-03-06T23:00:00+07:00") disamakan ke UTC lalu zonanya dibuang, sama
+    # seperti harga. Tanpa ini, kolom berzona waktu gagal dikurangi tanggal candle di cocokkan_berita,
+    # dan campuran berzona/tanpa zona membuat pandas error "Mixed timezones".
+    tanggal = pd.to_datetime(df["tanggal"], errors="coerce", format="mixed", utc=True).dt.tz_localize(None)
     rusak = tanggal.isna()
     if rusak.any():
         baris = [int(i) + 2 for i in df.index[rusak]]  # +2: header dan nomor baris mulai dari 1

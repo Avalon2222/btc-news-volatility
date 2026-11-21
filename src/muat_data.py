@@ -28,7 +28,9 @@ def muat_harga(path: Path | None = None) -> pd.DataFrame:
     # ("2024-01-02 00:00:00+00:00"). Samakan ke UTC lalu buang zonanya supaya bisa dibandingkan
     # dengan tanggal berita yang tanpa zona waktu.
     df["tanggal"] = pd.to_datetime(df["tanggal"], format="ISO8601", utc=True).dt.tz_localize(None)
-    return df.sort_values("tanggal").reset_index(drop=True)
+    # Sort stabil: kalau tanggal dobel (snapshot lama + unduhan baru), urutan aslinya harus tetap,
+    # karena hitung_return mengambil baris TERAKHIR sebagai versi terbaru.
+    return df.sort_values("tanggal", kind="mergesort").reset_index(drop=True)
 
 
 def muat_berita(path: Path | None = None) -> pd.DataFrame:

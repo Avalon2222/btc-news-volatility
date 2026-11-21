@@ -260,3 +260,11 @@ def test_perbarui_csv_hari_ini_berzona_waktu(monkeypatch, tmp_path):
     hari_ini = pd.Timestamp("2026-11-09 08:00", tz="Asia/Jakarta")
     df = ambil_harga.perbarui_csv(tmp_path / "btc.csv", hari_ini=hari_ini)
     assert df["tanggal"].dt.strftime("%Y-%m-%d").tolist() == ["2026-11-08"]
+
+
+def test_muat_harga_tanggal_dobel_urutan_file_tetap(tmp_path):
+    csv = tmp_path / "harga.csv"
+    baris = ["tanggal,close"] + [f"2024-01-01,{i + 1}" for i in range(200)]
+    csv.write_text("\n".join(baris) + "\n")
+    df = muat_harga(csv)
+    assert df["close"].tolist() == list(range(1, 201))

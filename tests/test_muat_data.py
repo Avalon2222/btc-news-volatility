@@ -268,3 +268,11 @@ def test_muat_harga_tanggal_dobel_urutan_file_tetap(tmp_path):
     csv.write_text("\n".join(baris) + "\n")
     df = muat_harga(csv)
     assert df["close"].tolist() == list(range(1, 201))
+
+
+def test_muat_harga_baris_rusak_dibuang(tmp_path):
+    csv = tmp_path / "harga.csv"
+    csv.write_text("tanggal,close\n2024-01-01,100\n2024-01-02,-\nbukan tanggal,105\n2024-01-03,110\n")
+    df = muat_harga(csv)
+    assert pd.api.types.is_float_dtype(df["close"])
+    assert df["close"].tolist() == [100.0, 110.0]

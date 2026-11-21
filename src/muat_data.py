@@ -27,7 +27,11 @@ def muat_harga(path: Path | None = None) -> pd.DataFrame:
     # Snapshot lama ("2024-01-01") bisa tercampur unduhan baru yang membawa zona waktu
     # ("2024-01-02 00:00:00+00:00"). Samakan ke UTC lalu buang zonanya supaya bisa dibandingkan
     # dengan tanggal berita yang tanpa zona waktu.
-    df["tanggal"] = pd.to_datetime(df["tanggal"], format="ISO8601", utc=True).dt.tz_localize(None)
+    df["tanggal"] = pd.to_datetime(df["tanggal"], format="ISO8601", utc=True, errors="coerce").dt.tz_localize(None)
+    # Satu sel close rusak ("-", "null") jangan sampai membuat seluruh kolom jadi teks; candle
+    # tanpa tanggal atau close yang valid dibuang di sini.
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+    df = df.dropna(subset=["tanggal", "close"])
     # Sort stabil: kalau tanggal dobel (snapshot lama + unduhan baru), urutan aslinya harus tetap,
     # karena hitung_return mengambil baris TERAKHIR sebagai versi terbaru.
     return df.sort_values("tanggal", kind="mergesort").reset_index(drop=True)

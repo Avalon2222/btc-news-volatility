@@ -276,3 +276,15 @@ def test_muat_harga_baris_rusak_dibuang(tmp_path):
     df = muat_harga(csv)
     assert pd.api.types.is_float_dtype(df["close"])
     assert df["close"].tolist() == [100.0, 110.0]
+
+
+def test_ambil_harga_yahoo_kolom_volume_tidak_dikirim(monkeypatch):
+    hari = 86400
+    data = {"chart": {"result": [{
+        "timestamp": [0, hari],
+        "indicators": {"quote": [{"open": [1.0, 2.0], "high": [1.5, 2.5], "low": [0.9, 1.9], "close": [1.2, 2.3]}]},
+    }]}}
+    monkeypatch.setattr(ambil_harga.requests, "get", lambda *a, **k: _ResponsPalsu(data))
+    df = ambil_harga.ambil_harga_yahoo("1970-01-01", "1970-01-05")
+    assert df["close"].tolist() == [1.2, 2.3]
+    assert df["volume"].tolist() == [0, 0]

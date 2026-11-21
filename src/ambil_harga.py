@@ -56,15 +56,14 @@ def ambil_harga_yahoo(mulai: str = "2020-01-01", sampai: str | None = None) -> p
     if not hasil.get("timestamp"):
         # Rentang tanpa candle sama sekali: kolom timestamp tidak dikirim.
         return pd.DataFrame(columns=["tanggal", "open", "high", "low", "close", "volume"])
-    kutipan = hasil["indicators"]["quote"][0]
+    kutipan = ((hasil.get("indicators") or {}).get("quote") or [{}])[0] or {}
+    n = len(hasil["timestamp"])
+    # Yahoo kadang tidak mengirim satu kolom (misalnya volume); kolom itu diisi kosong
+    # alih-alih membuat seluruh unduhan gagal dengan KeyError.
     df = pd.DataFrame(
         {
             "tanggal": pd.to_datetime(hasil["timestamp"], unit="s").normalize(),
-            "open": kutipan["open"],
-            "high": kutipan["high"],
-            "low": kutipan["low"],
-            "close": kutipan["close"],
-            "volume": kutipan["volume"],
+            **{k: kutipan.get(k) or [None] * n for k in ("open", "high", "low", "close", "volume")},
         }
     )
     df = df.dropna(subset=["close"]).drop_duplicates("tanggal").sort_values("tanggal")

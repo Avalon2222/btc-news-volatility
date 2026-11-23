@@ -66,7 +66,10 @@ def ambil_harga_yahoo(mulai: str = "2020-01-01", sampai: str | None = None) -> p
             **{k: kutipan.get(k) or [None] * n for k in ("open", "high", "low", "close", "volume")},
         }
     )
-    df = df.dropna(subset=["close"]).drop_duplicates("tanggal").sort_values("tanggal")
+    # Yahoo kadang mengirim candle hari yang sama dua kali (00:00 dan jam live); yang terakhir
+    # paling baru. Sama seperti hitung_return, ambil baris terakhir per tanggal.
+    df = (df.dropna(subset=["close"]).sort_values("tanggal", kind="mergesort")
+            .drop_duplicates("tanggal", keep="last"))
     for kolom in ["open", "high", "low", "close"]:
         df[kolom] = df[kolom].astype(float).round(2)
     df["volume"] = df["volume"].fillna(0).astype("int64")

@@ -349,3 +349,13 @@ def test_return_konstan_tidak_dianggap_signifikan():
                        "close": [100 * 1.01 ** i for i in range(80)]})
     assert deteksi.deteksi_pergerakan(df).empty
     assert deteksi.hitung_z_score(df)["z_score"].isna().all()
+
+
+def test_muat_berita_tanggal_sama_tetap_urutan_csv(tmp_path):
+    baris = [{"tanggal": f"2024-01-0{i % 3 + 1}", "judul": f"J{i:02d}", "kategori": "geopolitik",
+              "penjelasan": "x", "sumber_url": ""} for i in range(60)]
+    path = tmp_path / "berita.csv"
+    pd.DataFrame(baris).to_csv(path, index=False)
+    df = muat_berita(path)
+    hari_pertama = df[df["tanggal"] == "2024-01-01"]["judul"].tolist()
+    assert hari_pertama == sorted(hari_pertama)

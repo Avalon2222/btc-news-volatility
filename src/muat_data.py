@@ -73,4 +73,6 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
         )
     # Kolom yang kosong semua dibaca sebagai float; ubah ke object dulu supaya fillna("") tidak memicu warning.
     df["sumber_url"] = df["sumber_url"].astype(object).fillna("")
-    return df.sort_values("tanggal").reset_index(drop=True)
+    # Sort stabil: berita bertanggal sama tetap mengikuti urutan di CSV, karena cocokkan_berita
+    # memilih yang pertama saat selisihnya seri. Quicksort bawaan mengacak urutan itu.
+    return df.sort_values("tanggal", kind="mergesort").reset_index(drop=True)

@@ -26,6 +26,7 @@ import pandas as pd
 JENDELA_DEFAULT = 30     # hari untuk menghitung volatilitas
 AMBANG_Z_DEFAULT = 2.5   # |z| minimal supaya dianggap signifikan
 TOLERANSI_HARI_DEFAULT = 1  # berita boleh selisih +-1 hari dari pergerakan
+VOLATILITAS_MINIMUM = 1e-9  # di bawah ini (persen) pasar dianggap datar, z-score tidak dihitung
 
 
 def hitung_return(df: pd.DataFrame) -> pd.DataFrame:
@@ -63,8 +64,9 @@ def hitung_volatilitas(df: pd.DataFrame, jendela: int = JENDELA_DEFAULT) -> pd.D
 def hitung_z_score(df: pd.DataFrame, jendela: int = JENDELA_DEFAULT) -> pd.DataFrame:
     """Tambahkan kolom `z_score` = return_pct / volatilitas_pct."""
     hasil = hitung_volatilitas(df, jendela)
-    # Hindari pembagian dengan nol kalau pasar benar-benar datar.
-    vol = hasil["volatilitas_pct"].replace(0, np.nan)
+    # Hindari pembagian dengan nol kalau pasar benar-benar datar. Rolling std dari return yang
+    # konstan tidak selalu tepat 0 (sisa pembulatan ~1e-14), dan z-score lalu meledak ke 1e13.
+    vol = hasil["volatilitas_pct"].where(hasil["volatilitas_pct"] > VOLATILITAS_MINIMUM)
     hasil["z_score"] = hasil["return_pct"] / vol
     return hasil
 

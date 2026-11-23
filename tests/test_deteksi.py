@@ -341,3 +341,11 @@ def test_toleransi_hari_negatif_ditolak(toleransi):
     pergerakan = pd.DataFrame({"tanggal": pd.to_datetime(["2024-03-05"]), "return_pct": [8.0], "arah": ["naik"]})
     with pytest.raises(ValueError, match="toleransi_hari"):
         deteksi.cocokkan_berita(pergerakan, pd.DataFrame(), toleransi_hari=toleransi)
+
+
+def test_return_konstan_tidak_dianggap_signifikan():
+    # Naik tepat 1% tiap hari: volatilitas sebenarnya nol, sisa pembulatan tidak boleh jadi z-score raksasa.
+    df = pd.DataFrame({"tanggal": pd.date_range("2024-01-01", periods=80),
+                       "close": [100 * 1.01 ** i for i in range(80)]})
+    assert deteksi.deteksi_pergerakan(df).empty
+    assert deteksi.hitung_z_score(df)["z_score"].isna().all()

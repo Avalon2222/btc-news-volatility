@@ -288,3 +288,15 @@ def test_ambil_harga_yahoo_kolom_volume_tidak_dikirim(monkeypatch):
     df = ambil_harga.ambil_harga_yahoo("1970-01-01", "1970-01-05")
     assert df["close"].tolist() == [1.2, 2.3]
     assert df["volume"].tolist() == [0, 0]
+
+
+def test_ambil_harga_yahoo_candle_dobel_ambil_yang_terbaru(monkeypatch):
+    hari = 86400
+    data = {"chart": {"result": [{
+        "timestamp": [0, hari, hari + 5 * 3600],
+        "indicators": {"quote": [{"open": [1.0, 2.0, 2.0], "high": [1.0, 2.0, 2.5], "low": [1.0, 2.0, 1.9],
+                                  "close": [1.0, 2.0, 2.4], "volume": [1, 2, 3]}]},
+    }]}}
+    monkeypatch.setattr(ambil_harga.requests, "get", lambda *a, **k: _ResponsPalsu(data))
+    df = ambil_harga.ambil_harga_yahoo("1970-01-01", "1970-01-05")
+    assert df["close"].tolist() == [1.0, 2.4]

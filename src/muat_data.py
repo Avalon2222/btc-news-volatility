@@ -67,6 +67,12 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
     if kosong.any():
         baris = [int(i) + 2 for i in df.index[kosong]]  # +2: header dan nomor baris mulai dari 1
         raise ValueError(f"Kategori kosong di {path.name}, baris: {baris}")
+    # Judul kosong tampil sebagai "nan" di kartu berita dan tooltip; sama seperti kategori, tolak dengan nomor barisnya.
+    judul = df["judul"].map(lambda j: j.strip() if isinstance(j, str) else "")
+    if (judul == "").any():
+        baris = [int(i) + 2 for i in df.index[judul == ""]]
+        raise ValueError(f"Judul kosong di {path.name}, baris: {baris}")
+    df["judul"] = judul
     asing = set(df["kategori"].unique()) - KATEGORI_VALID
     if asing:
         raise ValueError(

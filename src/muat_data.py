@@ -31,6 +31,8 @@ def muat_harga(path: Path | None = None) -> pd.DataFrame:
     # Satu sel close rusak ("-", "null") jangan sampai membuat seluruh kolom jadi teks; candle
     # tanpa tanggal atau close yang valid dibuang di sini.
     df["close"] = pd.to_numeric(df["close"], errors="coerce")
+    # "inf" lolos to_numeric; candle seperti itu sama rusaknya dengan sel kosong.
+    df["close"] = df["close"].where(df["close"].abs() != float("inf"))
     df = df.dropna(subset=["tanggal", "close"])
     # Sort stabil: kalau tanggal dobel (snapshot lama + unduhan baru), urutan aslinya harus tetap,
     # karena hitung_return mengambil baris TERAKHIR sebagai versi terbaru.

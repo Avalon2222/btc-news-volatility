@@ -300,3 +300,10 @@ def test_ambil_harga_yahoo_candle_dobel_ambil_yang_terbaru(monkeypatch):
     monkeypatch.setattr(ambil_harga.requests, "get", lambda *a, **k: _ResponsPalsu(data))
     df = ambil_harga.ambil_harga_yahoo("1970-01-01", "1970-01-05")
     assert df["close"].tolist() == [1.0, 2.4]
+
+
+def test_muat_harga_buang_close_tak_hingga(tmp_path):
+    csv = tmp_path / "harga.csv"
+    csv.write_text("tanggal,close\n2024-01-01,100\n2024-01-02,inf\n2024-01-03,-inf\n2024-01-04,105\n")
+    df = muat_harga(csv)
+    assert df["close"].tolist() == [100.0, 105.0]

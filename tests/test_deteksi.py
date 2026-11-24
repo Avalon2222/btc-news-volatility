@@ -359,3 +359,11 @@ def test_muat_berita_tanggal_sama_tetap_urutan_csv(tmp_path):
     df = muat_berita(path)
     hari_pertama = df[df["tanggal"] == "2024-01-01"]["judul"].tolist()
     assert hari_pertama == sorted(hari_pertama)
+
+
+def test_return_buang_close_tak_hingga():
+    df = pd.DataFrame({"tanggal": pd.date_range("2024-01-01", periods=4), "close": [100.0, np.inf, 110.0, 121.0]})
+    hasil = deteksi.hitung_return(df)
+    assert len(hasil) == 3
+    assert np.isfinite(hasil["return_pct"].dropna()).all()
+    assert hasil["return_pct"].iloc[1] == pytest.approx(10.0)

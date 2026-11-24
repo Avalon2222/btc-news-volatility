@@ -38,7 +38,8 @@ def hitung_return(df: pd.DataFrame) -> pd.DataFrame:
     # Tanggal dobel (misalnya snapshot lama + unduhan baru digabung) membuat return palsu 0%; ambil yang terakhir.
     # Baris tanpa tanggal (NaT) dibuang: kalau ikut, ia tersortir ke paling akhir dan memberi return palsu.
     # Close kosong atau <= 0 (candle rusak) membuat return -100% lalu tak hingga di hari berikutnya.
-    df = df[df["close"] > 0]
+    # Close tak hingga ("inf" di CSV) memberi return tak hingga lalu -100% keesokan harinya.
+    df = df[(df["close"] > 0) & np.isfinite(df["close"])]
     hasil = (df.dropna(subset=["tanggal"]).drop_duplicates("tanggal", keep="last")
                .sort_values("tanggal").reset_index(drop=True).copy())
     hasil["return_pct"] = hasil["close"].pct_change() * 100

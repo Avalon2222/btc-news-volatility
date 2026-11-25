@@ -321,3 +321,16 @@ def test_muat_berita_penjelasan_kosong_jadi_string_kosong(tmp_path):
     csv.write_text(KOLOM_BERITA + "2024-01-01,A,geopolitik,,\n2024-01-02,B,geopolitik, Ada isi ,\n")
     df = muat_berita(csv)
     assert df["penjelasan"].tolist() == ["", "Ada isi"]
+
+
+def test_ambil_harga_yahoo_timestamp_null_dibuang(monkeypatch):
+    hari = 86400
+    data = {"chart": {"result": [{
+        "timestamp": [0, None, 2 * hari],
+        "indicators": {"quote": [{"open": [1.0, 2.0, 3.0], "high": [1.0, 2.0, 3.0], "low": [1.0, 2.0, 3.0],
+                                  "close": [1.0, 2.0, 3.0], "volume": [1, 2, 3]}]},
+    }]}}
+    monkeypatch.setattr(ambil_harga.requests, "get", lambda *a, **k: _ResponsPalsu(data))
+    df = ambil_harga.ambil_harga_yahoo("1970-01-01", "1970-01-05")
+    assert df["close"].tolist() == [1.0, 3.0]
+    assert df["tanggal"].notna().all()

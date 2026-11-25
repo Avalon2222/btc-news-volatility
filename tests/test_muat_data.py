@@ -314,3 +314,10 @@ def test_muat_berita_judul_kosong_ditolak(tmp_path):
     csv.write_text(KOLOM_BERITA + "2024-01-01,A,geopolitik,Ada judul,\n2024-01-02,,geopolitik,Lupa judul,\n")
     with pytest.raises(ValueError, match=r"Judul kosong.*\[3\]"):
         muat_berita(csv)
+
+
+def test_muat_berita_penjelasan_kosong_jadi_string_kosong(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text(KOLOM_BERITA + "2024-01-01,A,geopolitik,,\n2024-01-02,B,geopolitik, Ada isi ,\n")
+    df = muat_berita(csv)
+    assert df["penjelasan"].tolist() == ["", "Ada isi"]

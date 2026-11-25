@@ -68,7 +68,8 @@ def ambil_harga_yahoo(mulai: str = "2020-01-01", sampai: str | None = None) -> p
     )
     # Yahoo kadang mengirim candle hari yang sama dua kali (00:00 dan jam live); yang terakhir
     # paling baru. Sama seperti hitung_return, ambil baris terakhir per tanggal.
-    df = (df.dropna(subset=["close"]).sort_values("tanggal", kind="mergesort")
+    # Timestamp null dari Yahoo menjadi NaT; baris itu tidak punya tanggal dan tidak boleh ikut disimpan.
+    df = (df.dropna(subset=["tanggal", "close"]).sort_values("tanggal", kind="mergesort")
             .drop_duplicates("tanggal", keep="last"))
     for kolom in ["open", "high", "low", "close"]:
         df[kolom] = df[kolom].astype(float).round(2)

@@ -367,3 +367,13 @@ def test_return_buang_close_tak_hingga():
     assert len(hasil) == 3
     assert np.isfinite(hasil["return_pct"].dropna()).all()
     assert hasil["return_pct"].iloc[1] == pytest.approx(10.0)
+
+
+def test_jendela_harus_bilangan_bulat():
+    df = pd.DataFrame({"tanggal": pd.date_range("2024-01-01", periods=10), "close": range(100, 110)})
+    for salah in (2.5, float("nan"), float("inf")):
+        with pytest.raises(ValueError, match="bilangan bulat"):
+            deteksi.hitung_volatilitas(df, salah)
+    for benar in (3.0, np.int64(3)):
+        hasil = deteksi.hitung_volatilitas(df, benar)
+        assert hasil["volatilitas_pct"].notna().sum() == 6

@@ -53,6 +53,12 @@ def hitung_volatilitas(df: pd.DataFrame, jendela: int = JENDELA_DEFAULT) -> pd.D
     sendiri. Kalau tidak di-shift, hari crash besar akan membesarkan volatilitas
     dan menyembunyikan dirinya sendiri.
     """
+    # 30.0 dari input angka tetap diterima, tetapi 2.5 atau NaN ditolak dengan pesan yang jelas
+    # (sebelumnya lolos lalu rolling() gagal dengan pesan pandas yang membingungkan).
+    if isinstance(jendela, bool) or not (isinstance(jendela, (int, float, np.integer, np.floating))
+                                         and float(jendela).is_integer()):
+        raise ValueError(f"jendela harus bilangan bulat hari, dapat {jendela}")
+    jendela = int(jendela)
     if jendela < 2:
         raise ValueError(f"jendela minimal 2 hari supaya std bisa dihitung, dapat {jendela}")
     hasil = df.copy()

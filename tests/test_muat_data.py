@@ -345,3 +345,14 @@ def test_muat_berita_url_berspasi_dirapikan(tmp_path):
     )
     df = muat_berita(csv)
     assert df["sumber_url"].tolist() == ["", "https://contoh.id/b"]
+
+
+def test_muat_berita_url_tanpa_skema_diberi_https(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text(
+        KOLOM_BERITA
+        + "2024-01-01,A,geopolitik,Satu,www.reuters.com/a\n"
+        + "2024-01-02,B,regulasi,Dua,http://contoh.id/b\n"
+    )
+    df = muat_berita(csv)
+    assert df["sumber_url"].tolist() == ["https://www.reuters.com/a", "http://contoh.id/b"]

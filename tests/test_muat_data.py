@@ -334,3 +334,14 @@ def test_ambil_harga_yahoo_timestamp_null_dibuang(monkeypatch):
     df = ambil_harga.ambil_harga_yahoo("1970-01-01", "1970-01-05")
     assert df["close"].tolist() == [1.0, 3.0]
     assert df["tanggal"].notna().all()
+
+
+def test_muat_berita_url_berspasi_dirapikan(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text(
+        KOLOM_BERITA
+        + "2024-01-01,A,geopolitik,Satu,   \n"
+        + '2024-01-02,B,regulasi,Dua," https://contoh.id/b "\n'
+    )
+    df = muat_berita(csv)
+    assert df["sumber_url"].tolist() == ["", "https://contoh.id/b"]

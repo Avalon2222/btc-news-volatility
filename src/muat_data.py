@@ -80,7 +80,9 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
             f"Pilihan: {sorted(KATEGORI_VALID)}"
         )
     # Kolom yang kosong semua dibaca sebagai float; ubah ke object dulu supaya fillna("") tidak memicu warning.
-    df["sumber_url"] = df["sumber_url"].astype(object).fillna("")
+    # Spasi sisa edit spreadsheet dibuang: URL "   " lolos cek `if sumber_url` di app.py dan tampil
+    # sebagai link kosong, sedangkan " https://..." membuat link markdown tidak terbaca.
+    df["sumber_url"] = df["sumber_url"].map(lambda u: u.strip() if isinstance(u, str) else "")
     # Penjelasan boleh kosong, tetapi jangan tampil sebagai "nan" di kartu berita.
     df["penjelasan"] = df["penjelasan"].map(lambda p: p.strip() if isinstance(p, str) else "")
     # Sort stabil: berita bertanggal sama tetap mengikuti urutan di CSV, karena cocokkan_berita

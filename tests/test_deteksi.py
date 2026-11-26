@@ -377,3 +377,19 @@ def test_jendela_harus_bilangan_bulat():
     for benar in (3.0, np.int64(3)):
         hasil = deteksi.hitung_volatilitas(df, benar)
         assert hasil["volatilitas_pct"].notna().sum() == 6
+
+
+def test_cocokkan_berita_tanggal_berzona_waktu_tidak_error():
+    # Berita yang dibuat langsung (tidak lewat muat_berita) bisa membawa zona waktu.
+    pergerakan = pd.DataFrame({"tanggal": pd.to_datetime(["2024-03-05"]), "close": [1.0],
+                               "return_pct": [5.0], "arah": ["naik"]})
+    berita = pd.DataFrame({"tanggal": pd.to_datetime(["2024-03-06T01:00:00+07:00"]),
+                           "judul": ["ETF disetujui"], "kategori": ["regulasi"],
+                           "penjelasan": [""], "sumber_url": [""]})
+    hasil = deteksi.cocokkan_berita(pergerakan, berita)
+    assert hasil.loc[0, "judul"] == "ETF disetujui"
+    assert hasil.loc[0, "selisih_hari"] == 0   # 01:00 WIB = 5 Maret 18:00 UTC
+
+    # Pergerakan berzona waktu juga diterima.
+    pergerakan["tanggal"] = pergerakan["tanggal"].dt.tz_localize("UTC")
+    assert deteksi.cocokkan_berita(pergerakan, berita).loc[0, "judul"] == "ETF disetujui"

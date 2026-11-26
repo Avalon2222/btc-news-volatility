@@ -128,9 +128,14 @@ def cocokkan_berita(
 
     # Selisih dihitung per hari kalender: berita "2024-03-06 23:00" tetap 1 hari dari candle 2024-03-05,
     # bukan 1,96 hari yang lolos dari toleransi.
-    tgl_berita = pd.to_datetime(berita["tanggal"]).dt.normalize().to_numpy()
+    # Tanggal berzona waktu (berita yang tidak lewat muat_berita) disamakan ke UTC tanpa zona dulu;
+    # kalau tidak, array-nya jadi object dan pengurangan dengan datetime64 langsung error.
+    tgl_berita = _tanpa_zona(pd.to_datetime(berita["tanggal"])).dt.normalize().to_numpy()
     for i, baris in hasil.iterrows():
-        tgl_gerak = np.datetime64(pd.Timestamp(baris["tanggal"]).normalize())
+        tgl_gerak = pd.Timestamp(baris["tanggal"])
+        if tgl_gerak.tzinfo is not None:
+            tgl_gerak = tgl_gerak.tz_convert("UTC").tz_localize(None)
+        tgl_gerak = np.datetime64(tgl_gerak.normalize())
         selisih = np.abs((tgl_berita - tgl_gerak) / np.timedelta64(1, "D"))
         # Berita bertanggal kosong (NaT) menghasilkan NaN. argmin biasa akan memilih NaN itu,
         # jadi pakai nanargmin dan lewati kalau tidak ada satu pun tanggal yang valid.
@@ -144,6 +149,13 @@ def cocokkan_berita(
             ]
             hasil.loc[i, "selisih_hari"] = int(selisih[idx_terdekat])
     return _isi_kosong(hasil).set_axis(index_asli)
+
+
+def _tanpa_zona(tanggal: pd.Series) -> pd.Series:
+    """Ubah tanggal berzona waktu ke UTC lalu buang zonanya; tanggal tanpa zona dibiarkan."""
+    if getattr(tanggal.dt, "tz", None) is not None:
+        return tanggal.dt.tz_convert("UTC").dt.tz_localize(None)
+    return tanggal
 
 
 def _isi_kosong(df: pd.DataFrame) -> pd.DataFrame:

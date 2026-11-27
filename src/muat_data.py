@@ -89,6 +89,9 @@ def muat_berita(path: Path | None = None) -> pd.DataFrame:
     )
     # Penjelasan boleh kosong, tetapi jangan tampil sebagai "nan" di kartu berita.
     df["penjelasan"] = df["penjelasan"].map(lambda p: p.strip() if isinstance(p, str) else "")
+    # Berita yang tercatat dua kali (tanggal dan judul sama, mis. hasil salin-tempel di spreadsheet)
+    # cukup dihitung sekali; kalau tidak, jumlah berita per kategori ikut dobel.
+    df = df.drop_duplicates(["tanggal", "judul"], keep="first")
     # Sort stabil: berita bertanggal sama tetap mengikuti urutan di CSV, karena cocokkan_berita
     # memilih yang pertama saat selisihnya seri. Quicksort bawaan mengacak urutan itu.
     return df.sort_values("tanggal", kind="mergesort").reset_index(drop=True)

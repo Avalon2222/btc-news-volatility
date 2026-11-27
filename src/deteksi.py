@@ -130,7 +130,11 @@ def cocokkan_berita(
     # bukan 1,96 hari yang lolos dari toleransi.
     # Tanggal berzona waktu (berita yang tidak lewat muat_berita) disamakan ke UTC tanpa zona dulu;
     # kalau tidak, array-nya jadi object dan pengurangan dengan datetime64 langsung error.
-    tgl_berita = _tanpa_zona(pd.to_datetime(berita["tanggal"])).dt.normalize().to_numpy()
+    tgl_berita = _tanpa_zona(pd.to_datetime(berita["tanggal"])).dt.normalize()
+    # Berita tanpa judul (data yang tidak lewat muat_berita) tidak bisa dijadikan penyebab; kalau ikut
+    # dipilih, baris jadi "Penyebab belum tercatat" padahal berita lain yang sah ada dalam toleransi.
+    tanpa_judul = berita["judul"].map(lambda j: not isinstance(j, str) or not j.strip()).to_numpy()
+    tgl_berita = tgl_berita.where(~tanpa_judul).to_numpy()
     for i, baris in hasil.iterrows():
         tgl_gerak = pd.Timestamp(baris["tanggal"])
         if tgl_gerak.tzinfo is not None:

@@ -393,3 +393,17 @@ def test_cocokkan_berita_tanggal_berzona_waktu_tidak_error():
     # Pergerakan berzona waktu juga diterima.
     pergerakan["tanggal"] = pergerakan["tanggal"].dt.tz_localize("UTC")
     assert deteksi.cocokkan_berita(pergerakan, berita).loc[0, "judul"] == "ETF disetujui"
+
+
+def test_cocokkan_berita_lewati_berita_tanpa_judul():
+    pergerakan = pd.DataFrame({"tanggal": pd.to_datetime(["2024-01-10"]), "return_pct": [5.0], "arah": ["naik"]})
+    berita = pd.DataFrame({
+        "tanggal": pd.to_datetime(["2024-01-10", "2024-01-11"]),
+        "judul": [None, "ETF disetujui"],
+        "kategori": ["regulasi", "regulasi"],
+        "penjelasan": ["", "SEC setuju"],
+        "sumber_url": ["", "https://contoh.org"],
+    })
+    hasil = deteksi.cocokkan_berita(pergerakan, berita, toleransi_hari=1)
+    assert hasil["judul"].iloc[0] == "ETF disetujui"
+    assert hasil["selisih_hari"].iloc[0] == 1

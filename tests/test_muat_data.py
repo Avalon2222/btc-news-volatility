@@ -371,3 +371,16 @@ def test_ambil_harga_yahoo_kolom_kutipan_lebih_pendek(monkeypatch):
     df = ambil_harga.ambil_harga_yahoo("1970-01-01", "1970-01-05")
     assert df["close"].tolist() == [1.0, 2.0, 3.0]
     assert df["volume"].tolist() == [10, 20, 0]
+
+
+def test_muat_berita_baris_dobel_dihitung_sekali(tmp_path):
+    csv = tmp_path / "berita.csv"
+    csv.write_text(
+        KOLOM_BERITA
+        + "2024-01-10,ETF disetujui,regulasi,SEC setuju,\n"
+        + "2024-01-10, ETF disetujui ,Regulasi,Salinan,\n"
+        + "2024-01-10,Berita lain,geopolitik,,\n"
+    )
+    df = muat_berita(csv)
+    assert df["judul"].tolist() == ["ETF disetujui", "Berita lain"]
+    assert df["penjelasan"].tolist() == ["SEC setuju", ""]

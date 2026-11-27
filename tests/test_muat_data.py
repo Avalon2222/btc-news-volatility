@@ -356,3 +356,18 @@ def test_muat_berita_url_tanpa_skema_diberi_https(tmp_path):
     )
     df = muat_berita(csv)
     assert df["sumber_url"].tolist() == ["https://www.reuters.com/a", "http://contoh.id/b"]
+
+
+def test_ambil_harga_yahoo_kolom_kutipan_lebih_pendek(monkeypatch):
+    hari = 86400
+    data = {"chart": {"result": [{
+        "timestamp": [0, hari, 2 * hari],
+        "indicators": {"quote": [{
+            "open": [1.0, 2.0, 3.0], "high": [1.0, 2.0, 3.0], "low": [1.0, 2.0, 3.0],
+            "close": [1.0, 2.0, 3.0], "volume": [10, 20],
+        }]},
+    }]}}
+    monkeypatch.setattr(ambil_harga.requests, "get", lambda *a, **k: _ResponsPalsu(data))
+    df = ambil_harga.ambil_harga_yahoo("1970-01-01", "1970-01-05")
+    assert df["close"].tolist() == [1.0, 2.0, 3.0]
+    assert df["volume"].tolist() == [10, 20, 0]

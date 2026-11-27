@@ -34,6 +34,16 @@ def _ke_unix(tanggal: str) -> int:
     return int(dt.timestamp())
 
 
+def _sepanjang(nilai: list | None, n: int) -> list:
+    """Kolom kutipan Yahoo disamakan panjangnya dengan timestamp.
+
+    Kolom yang kurang panjang (candle terakhir belum punya volume) dulu membuat DataFrame
+    gagal dibuat ("All arrays must be of the same length"); sisanya diisi kosong.
+    """
+    nilai = list(nilai or [])
+    return (nilai + [None] * n)[:n]
+
+
 def ambil_harga_yahoo(mulai: str = "2020-01-01", sampai: str | None = None) -> pd.DataFrame:
     """Unduh harga harian BTC-USD dan kembalikan DataFrame rapi.
 
@@ -63,7 +73,7 @@ def ambil_harga_yahoo(mulai: str = "2020-01-01", sampai: str | None = None) -> p
     df = pd.DataFrame(
         {
             "tanggal": pd.to_datetime(hasil["timestamp"], unit="s").normalize(),
-            **{k: kutipan.get(k) or [None] * n for k in ("open", "high", "low", "close", "volume")},
+            **{k: _sepanjang(kutipan.get(k), n) for k in ("open", "high", "low", "close", "volume")},
         }
     )
     # Yahoo kadang mengirim candle hari yang sama dua kali (00:00 dan jam live); yang terakhir

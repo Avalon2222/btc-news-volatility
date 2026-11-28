@@ -39,6 +39,8 @@ def hitung_return(df: pd.DataFrame) -> pd.DataFrame:
     # Baris tanpa tanggal (NaT) dibuang: kalau ikut, ia tersortir ke paling akhir dan memberi return palsu.
     # Close kosong atau <= 0 (candle rusak) membuat return -100% lalu tak hingga di hari berikutnya.
     # Close tak hingga ("inf" di CSV) memberi return tak hingga lalu -100% keesokan harinya.
+    # Close berupa teks (DataFrame yang tidak lewat muat_harga) membuat perbandingan > 0 TypeError.
+    df = df.assign(close=pd.to_numeric(df["close"], errors="coerce"))
     df = df[(df["close"] > 0) & np.isfinite(df["close"])]
     hasil = (df.dropna(subset=["tanggal"]).drop_duplicates("tanggal", keep="last")
                .sort_values("tanggal").reset_index(drop=True).copy())

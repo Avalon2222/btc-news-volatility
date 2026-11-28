@@ -28,6 +28,9 @@ def muat_harga(path: Path | None = None) -> pd.DataFrame:
     # ("2024-01-02 00:00:00+00:00"). Samakan ke UTC lalu buang zonanya supaya bisa dibandingkan
     # dengan tanggal berita yang tanpa zona waktu.
     df["tanggal"] = pd.to_datetime(df["tanggal"], format="ISO8601", utc=True, errors="coerce").dt.tz_localize(None)
+    # Candle harian berlabel jam ("2024-01-02 15:30", unduhan live) harus satu hari dengan "2024-01-02 00:00";
+    # kalau tidak, hari itu punya dua candle dan return antar keduanya palsu.
+    df["tanggal"] = df["tanggal"].dt.normalize()
     # Satu sel close rusak ("-", "null") jangan sampai membuat seluruh kolom jadi teks; candle
     # tanpa tanggal atau close yang valid dibuang di sini.
     df["close"] = pd.to_numeric(df["close"], errors="coerce")

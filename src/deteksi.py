@@ -64,6 +64,10 @@ def hitung_volatilitas(df: pd.DataFrame, jendela: int = JENDELA_DEFAULT) -> pd.D
     hasil = df.copy()
     if "return_pct" not in hasil.columns:
         hasil = hitung_return(hasil)
+    elif "tanggal" in hasil.columns:
+        # Return yang sudah dihitung tetapi barisnya tidak urut tanggal (hasil filter/sampling) membuat
+        # rolling std memakai "30 baris acak", bukan 30 hari sebelumnya.
+        hasil = hasil.sort_values("tanggal", kind="mergesort").reset_index(drop=True)
     hasil["volatilitas_pct"] = hasil["return_pct"].rolling(jendela).std().shift(1)
     return hasil
 

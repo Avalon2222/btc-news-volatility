@@ -407,3 +407,12 @@ def test_cocokkan_berita_lewati_berita_tanpa_judul():
     hasil = deteksi.cocokkan_berita(pergerakan, berita, toleransi_hari=1)
     assert hasil["judul"].iloc[0] == "ETF disetujui"
     assert hasil["selisih_hari"].iloc[0] == 1
+
+
+def test_volatilitas_return_sudah_ada_tetap_urut_tanggal():
+    urut = deteksi.hitung_return(buat_harga([100, 102, 99, 101, 120, 118]))
+    acak = urut.sample(frac=1, random_state=1)
+    hasil = deteksi.hitung_volatilitas(acak, jendela=3)
+    assert hasil["tanggal"].is_monotonic_increasing
+    pembanding = deteksi.hitung_volatilitas(urut, jendela=3)
+    assert hasil["volatilitas_pct"].tolist()[3:] == pytest.approx(pembanding["volatilitas_pct"].tolist()[3:], nan_ok=True)

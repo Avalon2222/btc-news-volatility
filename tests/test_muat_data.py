@@ -384,3 +384,11 @@ def test_muat_berita_baris_dobel_dihitung_sekali(tmp_path):
     df = muat_berita(csv)
     assert df["judul"].tolist() == ["ETF disetujui", "Berita lain"]
     assert df["penjelasan"].tolist() == ["SEC setuju", ""]
+
+
+def test_muat_harga_tanggal_berjam_disamakan_ke_hari(tmp_path):
+    csv = tmp_path / "harga.csv"
+    csv.write_text("tanggal,close\n2024-01-01,100\n2024-01-02 00:00:00,105\n2024-01-02 15:30:00,110\n")
+    df = muat_harga(csv)
+    assert df["tanggal"].tolist() == list(pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-02"]))
+    assert df.drop_duplicates("tanggal", keep="last")["close"].tolist() == [100, 110]

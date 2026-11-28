@@ -416,3 +416,10 @@ def test_volatilitas_return_sudah_ada_tetap_urut_tanggal():
     assert hasil["tanggal"].is_monotonic_increasing
     pembanding = deteksi.hitung_volatilitas(urut, jendela=3)
     assert hasil["volatilitas_pct"].tolist()[3:] == pytest.approx(pembanding["volatilitas_pct"].tolist()[3:], nan_ok=True)
+
+
+def test_hitung_return_close_berupa_teks_tetap_dihitung():
+    df = buat_harga(["100", "110", "-", "99"])
+    hasil = deteksi.hitung_return(df)
+    assert hasil["close"].tolist() == [100.0, 110.0, 99.0]
+    assert hasil["return_pct"].iloc[1] == pytest.approx(10.0)
